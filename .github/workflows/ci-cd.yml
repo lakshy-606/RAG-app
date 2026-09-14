@@ -1,11 +1,17 @@
 # CI/CD pipeline (see SPECS.md §7 Phase 6 for the full rationale).
 #
 # - `test` runs on every push and PR into main: lint + pytest. Only tests
-#   that mock external services (HF/Pinecone/Groq) run here, so no real
+#   that mock external services (OpenAI/Pinecone) run here, so no real
 #   secrets are needed for this job.
 # - `build-and-deploy` runs only on pushes/merges to main, and only after
 #   `test` passes: builds the Docker image, pushes it to ECR, and deploys
-#   it to the existing AWS App Runner service.
+#   it to an Amazon ECS Express Mode service.
+#
+# Deploys to ECS Express Mode rather than AWS App Runner: App Runner
+# stopped accepting new customers on 2026-04-30, and Express Mode is
+# AWS's own recommended replacement — same "give it a container image,
+# get a URL" simplicity, on top of real ECS/Fargate + an Application Load
+# Balancer that AWS provisions for you.
 #
 # AWS auth uses GitHub's OIDC provider to assume an IAM role — no
 # long-lived AWS access keys are stored in GitHub. See SPECS.md §7 for the
@@ -67,24 +73,26 @@ jobs:
           docker build -t "$REGISTRY/$REPOSITORY:$IMAGE_TAG" -t "$REGISTRY/$REPOSITORY:latest" .
           docker push "$REGISTRY/$REPOSITORY" --all-tags
 
-      - name: Deploy to AWS App Runner
-        uses: awslabs/amazon-app-runner-deploy@main
-        env:
-          # copy-env-vars below tells the action which of these to set on
-          # the App Runner service itself — the app reads them the same
-          # way it reads .env locally (see app/config.py).
-          PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          APP_ENV: prod
+      - name: Deploy to Amazon ECS Express Mode
+        uses: aws-actions/amazon-ecs-deploy-express-service@v1
         with:
-          service: ${{ vars.APP_RUNNER_SERVICE_NAME }}
+          service-name: ${{ vars.ECS_SERVICE }}
           image: ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ github.sha }}
-          access-role-arn: ${{ secrets.APP_RUNNER_ECR_ACCESS_ROLE_ARN }}
-          region: ${{ vars.AWS_REGION }}
-          cpu: 1
-          memory: 2
-          wait-for-service-stability-seconds: 1200
-          copy-env-vars: |
-            PINECONE_API_KEY
-            OPENAI_API_KEY
-            APP_ENV
+          execution-role-arn: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/ecsTaskExecutionRole
+          infrastructure-role-arn: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/ecsInfrastructureRoleForExpressServices
+          container-port: 8000
+          health-check-path: /health
+          cpu: "1024"
+          memory: "2048"
+          min-task-count: 1
+          max-task-count: 3
+          auto-scaling-metric: AVERAGE_CPU
+          auto-scaling-target-value: 70
+          # The app reads these the same way it reads .env locally (see
+          # app/config.py) — set here rather than baked into the image.
+          environment-variables: |
+            [
+              {"name": "APP_ENV", "value": "prod"},
+              {"name": "PINECONE_API_KEY", "value": "${{ secrets.PINECONE_API_KEY }}"},
+              {"name": "OPENAI_API_KEY", "value": "${{ secrets.OPENAI_API_KEY }}"}
+            ]

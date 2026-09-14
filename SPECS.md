@@ -17,13 +17,13 @@ Status: planning document. No application code exists yet — this file is the s
 | Answer generation | **OpenAI** `gpt-4o-mini`, via LangChain `ChatOpenAI` | Strong instruction-following for citation-constrained answers; same provider as embeddings keeps the model-facing stack to one API key. |
 | Backend | **FastAPI** | REST API + easy static-file serving for a minimal UI, automatic OpenAPI docs. |
 | UI | Minimal static HTML/JS page served by FastAPI | Enough to demo the app via a browser URL without a separate frontend deploy. |
-| Container | **Docker** | Required for App Runner deployment. |
-| Cloud | **AWS App Runner** | Simplest "push a container, get a URL" path on AWS — no ALB/ECS task-definition management, supports auto-deploy on new image. |
-| CI/CD | **GitHub Actions** | Test → build → push to ECR → deploy to App Runner, triggered on push/merge to `main`. |
+| Container | **Docker** | Required for ECS Express Mode deployment. |
+| Cloud | **Amazon ECS Express Mode** | "Give it a container image + two IAM roles, get a URL" — AWS provisions the ECS/Fargate service, Application Load Balancer, auto scaling, and networking for you. Chosen after AWS closed **AWS App Runner** (the original choice, matching the assignment's own example) to new customers on 2026-04-30 and named Express Mode as its direct replacement. |
+| CI/CD | **GitHub Actions** | Test → build → push to ECR → deploy to ECS Express Mode, triggered on push/merge to `main`. |
 
 **Required deliverables (per the assignment):**
 1. Source-code repository (new GitHub repo — see Phase 0 / Phase 7).
-2. A deployed application URL (AWS App Runner — see Phase 6).
+2. A deployed application URL (Amazon ECS Express Mode — see Phase 6).
 3. The CI/CD pipeline configuration (`.github/workflows/ci-cd.yml` — see Phase 6).
 4. A brief README covering approach, cloud-service selection, and assumptions (see Phase 7).
 
@@ -87,7 +87,7 @@ RAG_app/
 
 ## 4. Secrets / Environment Variables
 
-**Application runtime** (`.env` locally; AWS App Runner environment variables / secrets in production):
+**Application runtime** (`.env` locally; ECS Express Mode container environment variables in production):
 ```
 PINECONE_API_KEY
 PINECONE_INDEX_NAME
@@ -104,11 +104,11 @@ PORT                    # 8000
 ```
 AWS_ROLE_ARN                       # OIDC-assumed IAM role for CI — no long-lived keys
 AWS_REGION
+AWS_ACCOUNT_ID                     # used to build ecsTaskExecutionRole / ecsInfrastructureRoleForExpressServices ARNs
 ECR_REPOSITORY
-APP_RUNNER_SERVICE_NAME
-APP_RUNNER_ECR_ACCESS_ROLE_ARN     # role App Runner itself uses to pull from ECR
-PINECONE_API_KEY                   # also passed through to the App Runner service itself
-OPENAI_API_KEY                     # (see the deploy step's copy-env-vars in §7 Phase 6)
+ECS_SERVICE
+PINECONE_API_KEY                   # also passed through to the ECS Express Mode service itself
+OPENAI_API_KEY                     # (see the deploy step's environment-variables in §7 Phase 6)
 # fallback only if OIDC bootstrap is skipped:
 AWS_ACCESS_KEY_ID
 AWS_SECRET_ACCESS_KEY
@@ -262,12 +262,15 @@ Response 200:
 - `.dockerignore`: exclude `.env`, `.git`, test caches, local venv.
 - **Gotcha:** Docling downloads layout/OCR model weights on first conversion call unless pre-cached. Either run a throwaway conversion during `docker build` to bake the weights into the image, or accept a slower first request in production — document the trade-off made.
 
-### Phase 6 — CI/CD & cloud deploy (AWS App Runner)
+### Phase 6 — CI/CD & cloud deploy (Amazon ECS Express Mode)
 **One-time manual AWS bootstrap** (documented here, not scripted by the workflow):
 1. Create an ECR repository for the app image.
 2. Register GitHub's OIDC provider in AWS IAM (`https://token.actions.githubusercontent.com`, audience `sts.amazonaws.com`).
-3. Create an IAM role trusted for `repo:<org>/<repo>:ref:refs/heads/main`, with a least-privilege policy: push to the specific ECR repo, `apprunner:UpdateService`/`DescribeService`/`StartDeployment`, and `iam:PassRole` for the App Runner access role. Store only the **role ARN** as a GitHub secret/variable — never a static key pair — unless OIDC setup is explicitly out of scope, in which case fall back to `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY` secrets.
-4. Create the App Runner service (or let the first CI deploy create it — see workflow below) pointing at that ECR repo.
+3. Create the two IAM roles ECS Express Mode itself needs (not the CI role):
+   - `ecsTaskExecutionRole` — trust principal `ecs-tasks.amazonaws.com`, managed policy `AmazonECSTaskExecutionRolePolicy`.
+   - `ecsInfrastructureRoleForExpressServices` — trust principal `ecs.amazonaws.com`, managed policy `AmazonECSInfrastructureRoleforExpressGatewayServices`.
+4. Create the GitHub Actions deploy role, trusted via OIDC for `repo:<org>/<repo>:ref:refs/heads/main`, with a least-privilege policy: push to the specific ECR repo; `ecs:CreateCluster`, `RegisterTaskDefinition`, `CreateExpressGatewayService`, `UpdateExpressGatewayService`, `DescribeExpressGatewayService`, `DescribeClusters`, `DescribeServices`, `ListServiceDeployments`, `DescribeServiceDeployments`, `TagResource`, `UntagResource` (per the deploy action's documented policy); and `iam:PassRole` scoped to just the two roles above. Store only the **role ARN** as a GitHub secret — never a static key pair — unless OIDC setup is explicitly out of scope, in which case fall back to `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY` secrets.
+5. No manual ECS cluster or service creation needed — the deploy action creates the Express Mode service (and its default cluster, if missing) on the first run.
 
 **`.github/workflows/ci-cd.yml`**, triggered on `push`/`merge` to `main` (plus `pull_request` for the test job only):
 
@@ -285,7 +288,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: { python-version: "3.11" }
+        with: { python-version: "3.12" }
       - run: pip install -r requirements.txt
       - run: ruff check .
       - run: pytest
@@ -310,33 +313,32 @@ jobs:
             -t ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ github.sha }} \
             -t ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest .
           docker push ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }} --all-tags
-      - uses: awslabs/amazon-app-runner-deploy@main
-        env:                                    # values the deploy step copies onto the service
-          PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          APP_ENV: prod
+      - uses: aws-actions/amazon-ecs-deploy-express-service@v1
         with:
-          service: ${{ vars.APP_RUNNER_SERVICE_NAME }}
+          service-name: ${{ vars.ECS_SERVICE }}
           image: ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ github.sha }}
-          access-role-arn: ${{ secrets.APP_RUNNER_ECR_ACCESS_ROLE_ARN }}
-          region: ${{ vars.AWS_REGION }}
-          cpu: 1
-          memory: 2
-          wait-for-service-stability-seconds: 1200
-          copy-env-vars: |            # names only — values come from the env: block above
-            PINECONE_API_KEY
-            OPENAI_API_KEY
-            APP_ENV
+          execution-role-arn: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/ecsTaskExecutionRole
+          infrastructure-role-arn: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/ecsInfrastructureRoleForExpressServices
+          container-port: 8000
+          health-check-path: /health
+          cpu: "1024"
+          memory: "2048"
+          environment-variables: |
+            [
+              {"name": "APP_ENV", "value": "prod"},
+              {"name": "PINECONE_API_KEY", "value": "${{ secrets.PINECONE_API_KEY }}"},
+              {"name": "OPENAI_API_KEY", "value": "${{ secrets.OPENAI_API_KEY }}"}
+            ]
 ```
 
-This action is idempotent — it creates the App Runner service on the first run and updates the image on every subsequent run — and outputs the live service URL. `copy-env-vars` is how the *running app* gets its secrets onto App Runner; it's separate from the OIDC role AWS auth CI itself uses to deploy. (`copy-secret-env-vars` also exists on this action, but maps to App Runner's `RuntimeEnvironmentSecrets`, which expects each value to already be a Secrets Manager/SSM ARN rather than a raw value — out of scope here, since plain runtime environment variables are enough for this project's threat model.)
+This action is idempotent — it creates the Express Mode service (ECS service, ALB, auto scaling, networking) on the first run and updates the running task on every subsequent run — and its `environment-variables` input is how the *running app* gets its secrets, separate from the OIDC role AWS auth CI itself uses to deploy. `cpu`/`memory` here are ECS units (1024 = 1 vCPU, memory in MiB), not the plain vCPU-count/GB numbers App Runner's API used.
 
 - **Test job requirements:** lint (`ruff`) + `pytest` (health-endpoint smoke test, the Phase-1 chunking-metadata validation test, and a mocked-pipeline test for `/query` that stubs the Pinecone vector store and `ChatOpenAI`). This job must pass before `build-and-deploy` runs — that's the "basic build/test/validation step" requirement.
-- **Secrets handling requirement:** application secrets (Pinecone/OpenAI keys) are set as App Runner environment variables/secrets in production, never baked into the image; CI secrets are GitHub Actions repo secrets, and AWS auth uses OIDC role assumption rather than long-lived keys — satisfies "secure handling of credentials and secrets."
+- **Secrets handling requirement:** application secrets (Pinecone/OpenAI keys) are set as ECS task environment variables in production, never baked into the image; CI secrets are GitHub Actions repo secrets, and AWS auth uses OIDC role assumption rather than long-lived keys — satisfies "secure handling of credentials and secrets."
 
 ### Phase 7 — README & repo deliverables
-- `README.md` covering: architecture overview (§2), why each cloud/AI service was chosen (§1 rationale column), local setup instructions, the assumptions/limitations list (§8 below), and the live App Runner URL once deployed.
-- `gh repo create` (new repo), push to `main`, confirm the Actions run is green and the App Runner URL responds.
+- `README.md` covering: architecture overview (§2), why each cloud/AI service was chosen (§1 rationale column), local setup instructions, the assumptions/limitations list (§8 below), and the live ECS Express Mode URL once deployed.
+- `gh repo create` (new repo), push to `main`, confirm the Actions run is green and the Express Mode URL (`https://<service-name>.ecs.<region>.on.aws/`) responds.
 
 ## 8. Assumptions & Risks
 
@@ -344,8 +346,8 @@ This action is idempotent — it creates the App Runner service on the first run
 2. **Docling provenance accuracy** — page-number metadata can be inconsistent for chunks spanning multiple pages/tables (documented upstream issue); validate against the sample PDF rather than assuming correctness.
 3. **Pinecone free-tier region must be pinned** to a supported combination (`aws`/`us-east-1`) rather than left to default.
 4. **Pinecone returns numeric metadata as float**, not the original int — confirmed live during implementation (a `page_number` written as `7` comes back as `7.0`). The pipeline casts back to `int` explicitly wherever a page number is read; don't assume metadata round-trips its original type.
-5. **AWS App Runner is not free** — it bills for provisioned vCPU/memory continuously (no scale-to-zero), roughly $5–25+/month depending on sizing. Accepted as a cost trade-off for deployment simplicity; worth disclosing explicitly.
+5. **AWS App Runner closed to new customers on 2026-04-30** — confirmed against AWS's own docs mid-implementation, after IAM setup for it had already begun. Pivoted to Amazon ECS Express Mode, AWS's own named replacement, before any App Runner-specific resources were actually created. ECS Express Mode isn't free either — it bills for the underlying Fargate/ALB resources, same as any ECS deployment — but there's no charge for Express Mode itself.
 6. **Docling's model-weight download** on first conversion affects cold start / image build time — mitigated by pre-baking weights into the Docker image.
 7. **Synchronous `/ingest`** won't scale past demo-sized PDFs (large documents risk request timeouts) — explicitly a v1 limitation, not solved here.
-8. **Rotate any key that passed through an insecure channel.** The original Pinecone key shipped in this project's `.env` in plaintext before this repo existed. The OpenAI key used during development was shared directly in a chat conversation rather than a secrets manager — both should be rotated once real deployment keys are issued, independent of anything else in this spec.
+8. **Rotate any key that passed through an insecure channel.** The original Pinecone key shipped in this project's `.env` in plaintext before this repo existed. The OpenAI key and a GitHub PAT used during development were both shared directly in a chat conversation rather than a secrets manager — all should be rotated once real deployment keys are issued, independent of anything else in this spec.
 9. **LangChain 1.x moved `create_retrieval_chain`/`create_stuff_documents_chain` out of core** — into a separate `langchain_classic` package. The pipeline uses direct LCEL composition (`prompt | llm`) instead, which is both the current recommended pattern and simpler to follow for this project's single-step chain.

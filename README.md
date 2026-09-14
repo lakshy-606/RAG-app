@@ -39,23 +39,26 @@ Query:   question → PineconeVectorStore.similarity_search_with_score()
 
 ## Cloud service selection
 
-**AWS App Runner** was chosen for deployment: it takes a container image
-and gives back a public HTTPS URL with no ALB/ECS task-definition/VPC
-setup, and supports redeploying on every new image push — the simplest
-path to "push code, get a live URL" on AWS. See SPECS.md §8 for the cost
-trade-off this implies (App Runner bills continuously, unlike a
-scale-to-zero option).
+**Amazon ECS Express Mode** was chosen for deployment: give it a container
+image and two IAM roles, and it provisions a complete stack for you — an
+ECS service on Fargate, an Application Load Balancer, auto scaling, and
+networking — behind one URL, with no manual ALB/target-group/VPC setup.
+(AWS App Runner was the original choice, matching the assignment's own
+example; it was swapped out after AWS closed App Runner to new customers
+on 2026-04-30 and began recommending Express Mode as the direct
+replacement — same operating simplicity, no extra cost beyond the
+underlying Fargate/ALB resources.)
 
 **CI/CD**: GitHub Actions, triggered on push/merge to `main`
 (`.github/workflows/ci-cd.yml`):
 1. `test` job — lint (`ruff`) + `pytest` (mocked, no real API keys needed).
 2. `build-and-deploy` job (only on `main`, only if tests pass) — builds the
-   Docker image, pushes to Amazon ECR, deploys the new image to the
-   existing App Runner service.
+   Docker image, pushes to Amazon ECR, deploys the new image to the ECS
+   Express Mode service (created automatically on the first deploy).
 
 **Secrets handling**: application secrets (Pinecone/OpenAI keys) are read
 from environment variables — `.env` locally (gitignored, never
-committed), App Runner's environment variable configuration in
+committed), container environment variables set by the deploy step in
 production. AWS credentials for CI are never stored as long-lived keys:
 GitHub Actions assumes an IAM role via OIDC (`AWS_ROLE_ARN`), scoped to
 this repo's `main` branch.
@@ -115,19 +118,27 @@ One-off end-to-end ingest of the sample PDF (bypassing the API):
 
 One-time AWS bootstrap required before the pipeline can deploy (not
 automated by the workflow itself — see SPECS.md §7 Phase 6):
-1. Create an ECR repository.
-2. Register GitHub's OIDC provider in AWS IAM and create a role trusted
-   for `repo:<org>/<repo>:ref:refs/heads/main`, with permissions to push
-   to that ECR repo and manage the App Runner service.
-3. Set the following in the GitHub repo's Settings → Secrets and
+1. Create an ECR repository (`rag-app`).
+2. Register GitHub's OIDC provider in AWS IAM.
+3. Create two ECS Express Mode roles: `ecsTaskExecutionRole` (trusted by
+   `ecs-tasks.amazonaws.com`, policy `AmazonECSTaskExecutionRolePolicy`)
+   and `ecsInfrastructureRoleForExpressServices` (trusted by
+   `ecs.amazonaws.com`, policy
+   `AmazonECSInfrastructureRoleforExpressGatewayServices`).
+4. Create the GitHub Actions deploy role, trusted via OIDC for
+   `repo:<org>/<repo>:ref:refs/heads/main`, with permissions to push to
+   the ECR repo, drive `ecs:CreateExpressGatewayService`/
+   `UpdateExpressGatewayService`/etc., and `iam:PassRole` for the two
+   roles above (nothing else — no static AWS keys anywhere).
+5. Set the following in the GitHub repo's Settings → Secrets and
    variables → Actions:
-   - Secrets: `AWS_ROLE_ARN`, `APP_RUNNER_ECR_ACCESS_ROLE_ARN`, `PINECONE_API_KEY`, `OPENAI_API_KEY`
-   - Variables: `AWS_REGION`, `ECR_REPOSITORY`, `APP_RUNNER_SERVICE_NAME`
+   - Secrets: `AWS_ROLE_ARN`, `PINECONE_API_KEY`, `OPENAI_API_KEY`
+   - Variables: `AWS_REGION`, `AWS_ACCOUNT_ID`, `ECR_REPOSITORY`, `ECS_SERVICE`
 
    The deploy step passes `PINECONE_API_KEY`, `OPENAI_API_KEY`, and
-   `APP_ENV=prod` through to the App Runner service itself (via the deploy
-   action's `copy-env-vars`) — that's how the *running app* gets its
-   secrets, separate from the AWS credentials CI uses to deploy it.
+   `APP_ENV=prod` straight to the ECS Express Mode service as container
+   environment variables — that's how the *running app* gets its secrets,
+   separate from the AWS credentials CI itself uses to deploy it.
 
 ## Assumptions & known limitations
 
@@ -143,11 +154,12 @@ automated by the workflow itself — see SPECS.md §7 Phase 6):
   leaking that through the API response or into LLM-visible citations.
 - `/ingest` is synchronous — fine for a demo-sized PDF, not built to scale
   to very large documents without a background job/queue.
-- AWS App Runner bills continuously for provisioned capacity; it was
-  chosen for deployment simplicity, not lowest cost.
-- **Rotate both the Pinecone and OpenAI keys used during development.**
-  The Pinecone key originally shipped in this project's `.env` in
-  plaintext before this repo existed. The OpenAI key was shared directly
+- ECS Express Mode's Fargate + Application Load Balancer resources bill
+  for what they use, same as any ECS/Fargate deployment — no free tier,
+  but no charge for Express Mode itself on top of that.
+- **Rotate every key used during development.** The Pinecone key
+  originally shipped in this project's `.env` in plaintext before this
+  repo existed. The OpenAI key and a GitHub PAT were both shared directly
   in a chat conversation while building this integration — treat any
   secret that passes through a chat channel as compromised and rotate it
   once real deployment keys are issued.
