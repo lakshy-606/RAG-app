@@ -121,10 +121,13 @@ automated by the workflow itself — see SPECS.md §7 Phase 6):
    to that ECR repo and manage the App Runner service.
 3. Set the following in the GitHub repo's Settings → Secrets and
    variables → Actions:
-   - Secrets: `AWS_ROLE_ARN`, `APP_RUNNER_ECR_ACCESS_ROLE_ARN`
+   - Secrets: `AWS_ROLE_ARN`, `APP_RUNNER_ECR_ACCESS_ROLE_ARN`, `PINECONE_API_KEY`, `OPENAI_API_KEY`
    - Variables: `AWS_REGION`, `ECR_REPOSITORY`, `APP_RUNNER_SERVICE_NAME`
-4. Set the app's own secrets (`PINECONE_API_KEY`, `OPENAI_API_KEY`, etc.)
-   as App Runner environment variables.
+
+   The deploy step passes `PINECONE_API_KEY`, `OPENAI_API_KEY`, and
+   `APP_ENV=prod` through to the App Runner service itself (via the deploy
+   action's `copy-env-vars`) — that's how the *running app* gets its
+   secrets, separate from the AWS credentials CI uses to deploy it.
 
 ## Assumptions & known limitations
 

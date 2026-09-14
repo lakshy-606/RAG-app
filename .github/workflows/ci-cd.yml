@@ -69,6 +69,13 @@ jobs:
 
       - name: Deploy to AWS App Runner
         uses: awslabs/amazon-app-runner-deploy@main
+        env:
+          # copy-env-vars below tells the action which of these to set on
+          # the App Runner service itself — the app reads them the same
+          # way it reads .env locally (see app/config.py).
+          PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          APP_ENV: prod
         with:
           service: ${{ vars.APP_RUNNER_SERVICE_NAME }}
           image: ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ github.sha }}
@@ -77,3 +84,7 @@ jobs:
           cpu: 1
           memory: 2
           wait-for-service-stability-seconds: 1200
+          copy-env-vars: |
+            PINECONE_API_KEY
+            OPENAI_API_KEY
+            APP_ENV

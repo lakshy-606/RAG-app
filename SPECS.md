@@ -107,6 +107,8 @@ AWS_REGION
 ECR_REPOSITORY
 APP_RUNNER_SERVICE_NAME
 APP_RUNNER_ECR_ACCESS_ROLE_ARN     # role App Runner itself uses to pull from ECR
+PINECONE_API_KEY                   # also passed through to the App Runner service itself
+OPENAI_API_KEY                     # (see the deploy step's copy-env-vars in §7 Phase 6)
 # fallback only if OIDC bootstrap is skipped:
 AWS_ACCESS_KEY_ID
 AWS_SECRET_ACCESS_KEY
@@ -309,6 +311,10 @@ jobs:
             -t ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest .
           docker push ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }} --all-tags
       - uses: awslabs/amazon-app-runner-deploy@main
+        env:                                    # values the deploy step copies onto the service
+          PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          APP_ENV: prod
         with:
           service: ${{ vars.APP_RUNNER_SERVICE_NAME }}
           image: ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ github.sha }}
@@ -317,9 +323,13 @@ jobs:
           cpu: 1
           memory: 2
           wait-for-service-stability-seconds: 1200
+          copy-env-vars: |            # names only — values come from the env: block above
+            PINECONE_API_KEY
+            OPENAI_API_KEY
+            APP_ENV
 ```
 
-This action is idempotent — it creates the App Runner service on the first run and updates the image on every subsequent run — and outputs the live service URL.
+This action is idempotent — it creates the App Runner service on the first run and updates the image on every subsequent run — and outputs the live service URL. `copy-env-vars` is how the *running app* gets its secrets onto App Runner; it's separate from the OIDC role AWS auth CI itself uses to deploy. (`copy-secret-env-vars` also exists on this action, but maps to App Runner's `RuntimeEnvironmentSecrets`, which expects each value to already be a Secrets Manager/SSM ARN rather than a raw value — out of scope here, since plain runtime environment variables are enough for this project's threat model.)
 
 - **Test job requirements:** lint (`ruff`) + `pytest` (health-endpoint smoke test, the Phase-1 chunking-metadata validation test, and a mocked-pipeline test for `/query` that stubs the Pinecone vector store and `ChatOpenAI`). This job must pass before `build-and-deploy` runs — that's the "basic build/test/validation step" requirement.
 - **Secrets handling requirement:** application secrets (Pinecone/OpenAI keys) are set as App Runner environment variables/secrets in production, never baked into the image; CI secrets are GitHub Actions repo secrets, and AWS auth uses OIDC role assumption rather than long-lived keys — satisfies "secure handling of credentials and secrets."
