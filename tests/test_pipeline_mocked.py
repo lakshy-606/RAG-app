@@ -24,10 +24,12 @@ def test_query_returns_answer_with_sources():
 
     fake_llm_response = MagicMock()
     fake_llm_response.content = 'The max is 42 [p.12, "Section 3.2 Limits"].'
+    fake_chain = MagicMock()
+    fake_chain.invoke.return_value = fake_llm_response
 
     with (
         patch("app.rag.get_vectorstore", return_value=fake_vectorstore),
-        patch("app.rag._chain.invoke", return_value=fake_llm_response),
+        patch("app.rag._get_chain", return_value=fake_chain),
     ):
         res = client.post("/query", json={"query": "What is the max?"})
 
@@ -43,13 +45,15 @@ def test_query_with_no_matches_returns_not_found_without_calling_llm():
     fake_vectorstore = MagicMock()
     fake_vectorstore.similarity_search_with_score.return_value = []
 
+    fake_chain = MagicMock()
+
     with (
         patch("app.rag.get_vectorstore", return_value=fake_vectorstore),
-        patch("app.rag._chain.invoke") as mock_invoke,
+        patch("app.rag._get_chain", return_value=fake_chain),
     ):
         res = client.post("/query", json={"query": "Anything not in the doc?"})
 
     assert res.status_code == 200
     assert res.json()["sources"] == []
     assert "does not appear to contain" in res.json()["answer"]
-    mock_invoke.assert_not_called()
+    fake_chain.invoke.assert_not_called()

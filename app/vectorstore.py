@@ -21,15 +21,21 @@ from app.config import settings
 
 EMBEDDING_DIMENSION = 1536
 
-_pc = Pinecone(api_key=settings.pinecone_api_key)
-
 
 def _get_or_create_index():
     """Return a handle to the app's raw Pinecone index, creating it first
     if needed. Safe to call repeatedly — `has_index` makes this idempotent.
+
+    The Pinecone client is constructed here rather than at module import
+    time: it raises immediately if `api_key` is empty, and app/config.py
+    deliberately defaults secrets to "" so the app can still boot (and
+    /health respond, and CI run tests that don't touch Pinecone) without
+    real keys present. Constructing it lazily keeps that promise — this
+    only runs, and only fails, when something actually needs the index.
     """
-    if not _pc.has_index(settings.pinecone_index_name):
-        _pc.create_index(
+    pc = Pinecone(api_key=settings.pinecone_api_key)
+    if not pc.has_index(settings.pinecone_index_name):
+        pc.create_index(
             name=settings.pinecone_index_name,
             vector_type="dense",
             dimension=EMBEDDING_DIMENSION,
@@ -37,16 +43,14 @@ def _get_or_create_index():
             spec=ServerlessSpec(cloud=settings.pinecone_cloud, region=settings.pinecone_region),
             deletion_protection="disabled",
         )
-    return _pc.Index(settings.pinecone_index_name)
+    return pc.Index(settings.pinecone_index_name)
 
 
 def get_vectorstore() -> PineconeVectorStore:
     """Return a LangChain-wrapped handle to the app's Pinecone index.
 
-    Built fresh on each call (cheap — no network call happens until you
-    actually add_documents/search) so it always reflects current settings;
-    the underlying Pinecone SDK client (`_pc`) and index creation are the
-    only parts kept process-wide.
+    Built fresh on each call — cheap, since no network call happens until
+    something actually calls add_documents/search on the result.
     """
     embeddings = OpenAIEmbeddings(
         model=settings.openai_embedding_model,

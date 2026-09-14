@@ -12,6 +12,8 @@ response contract in SPECS.md §6. The LLM is still instructed to cite
 inline in its answer text, for readability.
 """
 
+from functools import lru_cache
+
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 
@@ -42,17 +44,29 @@ _prompt = ChatPromptTemplate.from_messages(
     ]
 )
 
-# max_retries handles transient rate-limit/network errors; temperature=0
-# keeps answers deterministic and grounded rather than creative, which
-# matters for a citation-constrained Q&A task.
-_llm = ChatOpenAI(
-    model=settings.openai_chat_model,
-    api_key=settings.openai_api_key,
-    temperature=0,
-    max_retries=3,
-)
 
-_chain = _prompt | _llm
+@lru_cache(maxsize=1)
+def _get_chain():
+    """Build the prompt|llm chain lazily, on first use, and cache it.
+
+    `ChatOpenAI` validates its `api_key` eagerly in its constructor and
+    raises if it's empty — and app/config.py deliberately defaults secrets
+    to "" so the app can still boot (and /health respond, and CI run tests
+    that don't touch OpenAI) without real keys present. Building this at
+    import time would break that; building it lazily means construction —
+    and any missing-key failure — only happens when a query is actually
+    answered.
+    """
+    # max_retries handles transient rate-limit/network errors; temperature=0
+    # keeps answers deterministic and grounded rather than creative, which
+    # matters for a citation-constrained Q&A task.
+    llm = ChatOpenAI(
+        model=settings.openai_chat_model,
+        api_key=settings.openai_api_key,
+        temperature=0,
+        max_retries=3,
+    )
+    return _prompt | llm
 
 
 def _build_context_block(results) -> str:
@@ -98,6 +112,6 @@ def answer_query(query: str, doc_id: str | None = None, top_k: int = 5) -> dict:
         return {"answer": _NOT_FOUND_ANSWER, "sources": [], "doc_id": doc_id}
 
     context_block = _build_context_block(results)
-    response = _chain.invoke({"context": context_block, "question": query})
+    response = _get_chain().invoke({"context": context_block, "question": query})
 
     return {"answer": response.content, "sources": _results_to_sources(results), "doc_id": doc_id}
