@@ -23,9 +23,9 @@ class Settings(BaseSettings):
     pinecone_cloud: str = "aws"
     pinecone_region: str = "us-east-1"
 
-    # OpenAI — both embeddings and answer generation go through OpenAI now,
-    # via LangChain. text-embedding-3-small is 1536-dim; the Pinecone index
-    # dimension in app/vectorstore/pinecone_client.py must match.
+    # OpenAI — embeddings and answer generation both go through OpenAI, via
+    # LangChain. text-embedding-3-small is 1536-dim; the Pinecone index
+    # dimension in app/vectorstore.py must match.
     openai_api_key: str = ""
     openai_embedding_model: str = "text-embedding-3-small"
     openai_chat_model: str = "gpt-4o-mini"

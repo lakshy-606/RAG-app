@@ -26,8 +26,8 @@ def test_query_returns_answer_with_sources():
     fake_llm_response.content = 'The max is 42 [p.12, "Section 3.2 Limits"].'
 
     with (
-        patch("app.rag.pipeline.get_vectorstore", return_value=fake_vectorstore),
-        patch("app.rag.pipeline._chain.invoke", return_value=fake_llm_response),
+        patch("app.rag.get_vectorstore", return_value=fake_vectorstore),
+        patch("app.rag._chain.invoke", return_value=fake_llm_response),
     ):
         res = client.post("/query", json={"query": "What is the max?"})
 
@@ -44,8 +44,8 @@ def test_query_with_no_matches_returns_not_found_without_calling_llm():
     fake_vectorstore.similarity_search_with_score.return_value = []
 
     with (
-        patch("app.rag.pipeline.get_vectorstore", return_value=fake_vectorstore),
-        patch("app.rag.pipeline._chain.invoke") as mock_invoke,
+        patch("app.rag.get_vectorstore", return_value=fake_vectorstore),
+        patch("app.rag._chain.invoke") as mock_invoke,
     ):
         res = client.post("/query", json={"query": "Anything not in the doc?"})
 

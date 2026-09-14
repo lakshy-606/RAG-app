@@ -1,6 +1,6 @@
-"""Orchestration façade used by the FastAPI routers (Phase 4).
+"""Orchestration façade used by the FastAPI routes in main.py.
 
-Keeps the routers thin and framework-agnostic: they call `ingest_pdf` /
+Keeps main.py thin and framework-agnostic: it calls `ingest_pdf` /
 `answer_query` here rather than reaching into ingestion/vectorstore/rag
 internals directly.
 """
@@ -9,21 +9,18 @@ import uuid
 
 from langchain_core.documents import Document
 
-from app.ingestion.chunker import chunk_document
-from app.ingestion.pdf_parser import parse_pdf
-from app.rag.pipeline import answer_query as _answer_query
-from app.vectorstore.pinecone_client import get_vectorstore
+from app.ingestion import chunk_document, parse_pdf
+from app.rag import answer_query as _answer_query
+from app.vectorstore import get_vectorstore
 
 
 def ingest_pdf(path: str, source_filename: str) -> dict:
     """Parse, chunk, embed, and store one PDF. Returns ingest summary info
     matching the POST /ingest response contract (SPECS.md §6).
 
-    Chunking is still done by Docling (see app/ingestion/chunker.py) so
-    page numbers and section headings survive as metadata; each chunk then
-    becomes a LangChain `Document`, and `vectorstore.add_documents` embeds
-    and upserts it to Pinecone in one call (OpenAI embeddings happen
-    automatically inside the vector store wrapper).
+    Each chunk becomes a LangChain `Document`; `vectorstore.add_documents`
+    embeds and upserts it to Pinecone in one call (OpenAI embeddings
+    happen automatically inside the vector store wrapper).
     """
     doc = parse_pdf(path)
     chunks = chunk_document(doc)

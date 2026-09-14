@@ -56,25 +56,12 @@ RAG_app/
 │       └── ci-cd.yml
 ├── app/
 │   ├── __init__.py
-│   ├── main.py                    # FastAPI app: mounts routers + StaticFiles
+│   ├── main.py                    # FastAPI app: routes (health/ingest/query) + static UI mount
 │   ├── config.py                  # pydantic Settings, loads .env via python-dotenv
-│   ├── routers/
-│   │   ├── __init__.py
-│   │   ├── ingest.py              # POST /ingest
-│   │   ├── query.py                # POST /query
-│   │   └── health.py              # GET /health
-│   ├── ingestion/
-│   │   ├── __init__.py
-│   │   ├── pdf_parser.py          # DocumentConverter wrapper
-│   │   └── chunker.py             # HybridChunker wrapper + page/heading extraction
-│   ├── vectorstore/
-│   │   ├── __init__.py
-│   │   └── pinecone_client.py     # LangChain PineconeVectorStore + OpenAI embeddings, index create
-│   ├── rag/
-│   │   ├── __init__.py
-│   │   ├── prompts.py             # system prompt + context-block builder, citation instructions
-│   │   └── pipeline.py            # retrieve -> build context -> ChatPromptTemplate|ChatOpenAI -> answer+sources
-│   └── retriever.py                # orchestration façade used by routers (renamed from retreiver.py)
+│   ├── ingestion.py                # Docling: DocumentConverter + HybridChunker, page/heading extraction
+│   ├── vectorstore.py              # LangChain PineconeVectorStore + OpenAI embeddings, index create
+│   ├── rag.py                      # system prompt + retrieve -> context -> ChatPromptTemplate|ChatOpenAI
+│   └── retriever.py                # orchestration façade between main.py and the modules above
 ├── static/
 │   ├── index.html
 │   ├── app.js
@@ -96,7 +83,7 @@ RAG_app/
 └── README.md
 ```
 
-> The existing `app/retreiver.py` is an empty stub with a filename typo. Phase 0 renames it to `app/retriever.py` and Phase 3 gives it real content (a thin façade over `app/rag/pipeline.py`).
+> The original `app/retreiver.py` stub had a filename typo; the spec uses the corrected `app/retriever.py` throughout.
 
 ## 4. Secrets / Environment Variables
 
@@ -195,15 +182,14 @@ Response 200:
 - **Gotcha:** Docling pulls in `torch` and layout-model weights on first use — do a local sanity install/run before writing the Dockerfile, since it affects image size and build time later.
 
 ### Phase 1 — PDF ingestion & chunking (Docling)
-- `app/ingestion/pdf_parser.py`:
+- `app/ingestion.py`:
   ```python
   from docling.document_converter import DocumentConverter
+  from docling.chunking import HybridChunker
+
   converter = DocumentConverter()
   doc = converter.convert(path).document
-  ```
-- `app/ingestion/chunker.py`:
-  ```python
-  from docling.chunking import HybridChunker
+
   chunker = HybridChunker(max_tokens=512)
   for chunk in chunker.chunk(dl_doc=doc):
       text = chunker.contextualize(chunk)          # heading-enriched text — embed this, not raw chunk.text
@@ -214,13 +200,13 @@ Response 200:
       })
       heading = chunk.meta.headings[-1] if chunk.meta.headings else None
   ```
-  Normalize each chunk into a plain `ChunkRecord` dataclass (`text, page_numbers, heading, chunk_index`) decoupled from Docling internals, so the rest of the pipeline doesn't depend on Docling's object model.
+  Normalize each chunk into a plain `ChunkRecord` dataclass (`text, page_numbers, heading, chunk_index`) decoupled from Docling internals, so the rest of the app doesn't depend on Docling's object model.
 - `tests/test_chunking.py`: run against `data/relevant_section_identification-sample.pdf`; assert chunks are non-empty, every chunk has ≥1 page number, and print a handful for manual spot-check.
 - **Gotcha (real, documented):** Docling provenance page numbers can be inconsistent for chunks whose source items span multiple pages or come from tables/captions (see docling-project/docling discussion #1012). Don't assume correctness — validate against the sample PDF before building on top. Store `page_numbers` as a list; use `min(page_numbers)` as the "primary" citation page but keep the full list in metadata.
-- **Gotcha:** pick `max_tokens` to fit under the embedding model's max sequence length (MiniLM/bge-small are ~256–512 tokens) to avoid silent truncation at embedding time.
+- **Gotcha:** `max_tokens=512` is chosen for retrieval granularity (a chunk small enough to cite precisely), well under OpenAI's embedding input limit — it's not a truncation-safety constraint here the way it would be for a smaller embedding model.
 
 ### Phase 2 — Vector store (Pinecone, via LangChain + OpenAI embeddings)
-- `app/vectorstore/pinecone_client.py`:
+- `app/vectorstore.py`:
   ```python
   from langchain_openai import OpenAIEmbeddings
   from langchain_pinecone import PineconeVectorStore
@@ -244,8 +230,7 @@ Response 200:
 - `scripts/ingest_sample.py`: CLI chaining Phase 1 + Phase 2 (via `app/retriever.py`) to ingest the sample PDF end-to-end, for manual testing before the API layer exists.
 
 ### Phase 3 — Retrieval & answer generation (LangChain + OpenAI)
-- `app/rag/prompts.py`: system prompt instructing the model to answer **only** from the provided context and to cite every claim as `[p.X, "Heading"]`; a `build_context_block()` helper turns retrieved `(Document, score)` pairs into that labeled context text.
-- `app/rag/pipeline.py`:
+- `app/rag.py`: system prompt instructing the model to answer **only** from the provided context and to cite every claim as `[p.X, "Heading"]`; a context-block builder turns retrieved `(Document, score)` pairs into that labeled context text; then:
   ```python
   from langchain_core.prompts import ChatPromptTemplate
   from langchain_openai import ChatOpenAI
@@ -261,13 +246,12 @@ Response 200:
   # build_context_block(results) -> context string tagged [p.X, "Heading"]
   # chain.invoke({"context": context, "question": query}) -> response.content
   ```
-  Uses LangChain's current LCEL pipe pattern rather than the older `create_retrieval_chain`/`create_stuff_documents_chain` helpers — those moved out of core `langchain` into the separate `langchain_classic` package as of LangChain 1.0, and a direct `prompt | llm` pipe is just as readable for a single-step "stuff the context in and ask" chain. `ChatOpenAI`'s built-in `max_retries` handles transient rate-limit/network errors, so no separate fallback-model logic is needed (that was specific to Groq's unusually low free-tier limits).
+  Composed directly via LCEL (`prompt | llm`) rather than a prebuilt chain helper — this is a single "stuff the context in and ask" step, so the direct pipe is just as readable and has no extra moving parts. `ChatOpenAI`'s built-in `max_retries` handles transient rate-limit/network errors.
   Handle the zero-retrieval-result case explicitly (return "not found in this document" rather than calling the LLM at all).
-- `app/retriever.py` becomes the thin façade the routers call (`ingest_pdf(...)`, `answer_query(...)`); `ingest_pdf` converts each `ChunkRecord` into a LangChain `Document(page_content, metadata)` before calling `vectorstore.add_documents`.
+- `app/retriever.py` becomes the thin façade `main.py` calls (`ingest_pdf(...)`, `answer_query(...)`); `ingest_pdf` converts each `ChunkRecord` into a LangChain `Document(page_content, metadata)` before calling `vectorstore.add_documents`.
 
 ### Phase 4 — FastAPI app & minimal UI
-- `app/main.py`: FastAPI instance, `StaticFiles` mount, router includes, CORS only if the UI is ever split out.
-- `app/routers/{ingest,query,health}.py` implementing the §6 contracts.
+- `app/main.py`: the FastAPI instance, all three routes (`/health`, `/ingest`, `/query`) implementing the §6 contracts, and the `StaticFiles` mount — small enough as one app to not need separate router modules.
 - `static/index.html` + `app.js`: one query box, `fetch('/query', {...})`, render `answer` with `sources` shown as clickable/highlighted citations.
 - **Gotcha:** synchronous `/ingest` blocks on Docling conversion + per-chunk embedding calls for the whole PDF — fine for a ~40-page demo doc, but call this out in the README as a known v1 scaling limitation (future: background task/queue).
 

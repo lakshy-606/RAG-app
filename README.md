@@ -66,12 +66,12 @@ this repo's `main` branch.
 RAG_app/
 ├── .github/workflows/ci-cd.yml
 ├── app/
-│   ├── main.py, config.py
-│   ├── routers/{ingest,query,health}.py
-│   ├── ingestion/{pdf_parser,chunker}.py     # Docling
-│   ├── vectorstore/pinecone_client.py        # LangChain PineconeVectorStore + OpenAI embeddings
-│   ├── rag/{prompts,pipeline}.py             # LangChain ChatPromptTemplate | ChatOpenAI
-│   └── retriever.py                          # orchestration façade
+│   ├── main.py           # FastAPI app: routes (health/ingest/query) + static UI mount
+│   ├── config.py         # Settings (env vars)
+│   ├── ingestion.py      # Docling: PDF parsing + chunking
+│   ├── vectorstore.py    # LangChain PineconeVectorStore + OpenAI embeddings
+│   ├── rag.py            # LangChain ChatPromptTemplate | ChatOpenAI -> cited answer
+│   └── retriever.py      # orchestration façade between main.py and the modules above
 ├── static/{index.html,app.js,style.css}
 ├── data/relevant_section_identification-sample.pdf
 ├── tests/{test_health,test_chunking,test_pipeline_mocked}.py

@@ -8,8 +8,7 @@ signal, not a flaky test.
 
 from pathlib import Path
 
-from app.ingestion.chunker import chunk_document
-from app.ingestion.pdf_parser import parse_pdf
+from app.ingestion import chunk_document, parse_pdf
 
 SAMPLE_PDF = Path(__file__).parent.parent / "data" / "relevant_section_identification-sample.pdf"
 
