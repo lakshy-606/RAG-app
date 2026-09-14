@@ -1,8 +1,9 @@
-"""Prompt templates for the answer-generation step.
+"""Prompt template for the answer-generation step.
 
 The one rule that matters here: the model must answer only from the
 retrieved context and must cite where each part of the answer came from,
-in the [p.X, "Heading"] format the /query response parses sources from.
+in the [p.X, "Heading"] format the /query response's `sources` are built
+from independently (see pipeline.py).
 """
 
 SYSTEM_PROMPT = """\
@@ -21,20 +22,22 @@ Rules:
 """
 
 
-def build_context_block(matches) -> str:
-    """Turn Pinecone matches into the labeled context block the LLM reads.
+def build_context_block(results) -> str:
+    """Turn retrieved (Document, score) pairs into the labeled context
+    block the LLM reads.
 
-    `matches` are Pinecone query results (see pinecone_client.query_chunks),
-    each with `.metadata` containing page_number/section_heading/chunk_text.
+    `results` is what `vectorstore.similarity_search_with_score` returns
+    (see app/vectorstore/pinecone_client.py) — LangChain Documents carry
+    the chunk text as `.page_content` and our page/heading metadata as
+    `.metadata`.
     """
     lines = []
-    for match in matches:
-        meta = match.metadata
-        heading = meta.get("section_heading") or "Untitled section"
-        page = meta.get("page_number")
-        lines.append(f'[p.{page}, "{heading}"]\n{meta.get("chunk_text", "")}')
+    for doc, _score in results:
+        heading = doc.metadata.get("section_heading") or "Untitled section"
+        # Pinecone returns numeric metadata as float (e.g. 7.0) even though
+        # we write plain ints at ingest time — display as a clean int so
+        # the model's inline citations read "p.7", not "p.7.0".
+        page = doc.metadata.get("page_number")
+        page = int(page) if page is not None else "?"
+        lines.append(f'[p.{page}, "{heading}"]\n{doc.page_content}')
     return "\n\n---\n\n".join(lines)
-
-
-def build_user_prompt(query: str, context_block: str) -> str:
-    return f"Context excerpts:\n\n{context_block}\n\nQuestion: {query}"

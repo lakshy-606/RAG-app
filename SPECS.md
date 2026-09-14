@@ -11,9 +11,10 @@ Status: planning document. No application code exists yet — this file is the s
 | Concern | Choice | Why |
 |---|---|---|
 | PDF parsing + chunking | **Docling** (`DocumentConverter` + `HybridChunker`) | Preserves document structure — page numbers and heading hierarchy travel with each chunk as metadata, which is exactly what the citation requirement needs. |
-| Embeddings | **HuggingFace Inference API** (free tier), `feature_extraction` task | Groq has no embeddings endpoint. HF's serverless free tier gives a hosted embedding model with no local GPU/CPU cost. |
+| Framework | **LangChain** (`Document`, `PineconeVectorStore`, `ChatPromptTemplate` \| `ChatOpenAI`) | Standardizes the chunk→vector-store→retrieval→prompt plumbing on well-known abstractions instead of hand-rolled glue code around each provider's raw SDK. |
+| Embeddings | **OpenAI** `text-embedding-3-small` (1536-dim), via LangChain | One provider for both embeddings and generation; `langchain-pinecone`'s `PineconeVectorStore` calls it automatically on add/search, so the app never builds raw vectors by hand. |
 | Vector DB | **Pinecone** (Serverless, free/Starter tier) | Already the intended DB per the existing `.env`; simple SDK, generous free tier for a small demo corpus. |
-| Answer generation | **Groq** (free tier), `llama-3.3-70b-versatile` | Fast, free, OpenAI-compatible-ish SDK; good at instruction-following for citation-constrained answers. |
+| Answer generation | **OpenAI** `gpt-4o-mini`, via LangChain `ChatOpenAI` | Strong instruction-following for citation-constrained answers; same provider as embeddings keeps the model-facing stack to one API key. |
 | Backend | **FastAPI** | REST API + easy static-file serving for a minimal UI, automatic OpenAPI docs. |
 | UI | Minimal static HTML/JS page served by FastAPI | Enough to demo the app via a browser URL without a separate frontend deploy. |
 | Container | **Docker** | Required for App Runner deployment. |
@@ -31,19 +32,18 @@ Status: planning document. No application code exists yet — this file is the s
 **Ingest path** (one-time or per-document, via `POST /ingest`):
 ```
 PDF file
-  → Docling DocumentConverter.convert()        (parse into structured DoclingDocument)
-  → Docling HybridChunker.chunk()               (token-aware chunks + page/heading metadata)
-  → HF Inference API feature_extraction()        (embed each chunk's contextualized text)
-  → Pinecone upsert()                             (vector + metadata: doc_id, page_number(s), heading, chunk_text)
+  → Docling DocumentConverter.convert()          (parse into structured DoclingDocument)
+  → Docling HybridChunker.chunk()                 (token-aware chunks + page/heading metadata)
+  → LangChain Document(page_content, metadata)    (one per chunk: doc_id, page_number(s), heading, chunk_index)
+  → PineconeVectorStore.add_documents()           (OpenAI text-embedding-3-small embeds each chunk automatically)
 ```
 
 **Query path** (via `POST /query`):
 ```
 user query
-  → HF Inference API feature_extraction()        (embed the query)
-  → Pinecone query()                              (top-k nearest chunks, optional doc_id filter)
-  → build context block (chunk_text tagged with [p.X, "Heading"])
-  → Groq chat.completions.create()                (LLM answers only from context, must cite page/heading)
+  → PineconeVectorStore.similarity_search_with_score()   (OpenAI embeds the query automatically; top-k, optional doc_id filter)
+  → build context block (chunk text tagged with [p.X, "Heading"])
+  → (ChatPromptTemplate | ChatOpenAI).invoke()            (LangChain LCEL chain; answers only from context, must cite page/heading)
   → parse into {answer, sources:[{page, heading, snippet, score}]}
 ```
 
@@ -67,16 +67,13 @@ RAG_app/
 │   │   ├── __init__.py
 │   │   ├── pdf_parser.py          # DocumentConverter wrapper
 │   │   └── chunker.py             # HybridChunker wrapper + page/heading extraction
-│   ├── embeddings/
-│   │   ├── __init__.py
-│   │   └── hf_embedder.py         # InferenceClient(provider="hf-inference") wrapper, retry/backoff
 │   ├── vectorstore/
 │   │   ├── __init__.py
-│   │   └── pinecone_client.py     # index create/upsert/query
+│   │   └── pinecone_client.py     # LangChain PineconeVectorStore + OpenAI embeddings, index create
 │   ├── rag/
 │   │   ├── __init__.py
-│   │   ├── prompts.py             # system/user prompt templates with citation instructions
-│   │   └── pipeline.py            # retrieve -> build context -> Groq call -> parse answer+sources
+│   │   ├── prompts.py             # system prompt + context-block builder, citation instructions
+│   │   └── pipeline.py            # retrieve -> build context -> ChatPromptTemplate|ChatOpenAI -> answer+sources
 │   └── retriever.py                # orchestration façade used by routers (renamed from retreiver.py)
 ├── static/
 │   ├── index.html
@@ -87,7 +84,7 @@ RAG_app/
 ├── tests/
 │   ├── test_health.py
 │   ├── test_chunking.py           # validates page/heading extraction against the sample PDF
-│   └── test_pipeline_mocked.py    # mocks HF/Pinecone/Groq calls
+│   └── test_pipeline_mocked.py    # mocks the Pinecone vector store and ChatOpenAI calls
 ├── scripts/
 │   └── ingest_sample.py           # CLI: one-off ingest of the sample PDF for local/demo use
 ├── Dockerfile
@@ -109,11 +106,9 @@ PINECONE_API_KEY
 PINECONE_INDEX_NAME
 PINECONE_CLOUD          # aws
 PINECONE_REGION         # us-east-1
-HF_API_TOKEN
-HF_EMBEDDING_MODEL      # sentence-transformers/all-MiniLM-L6-v2 (fallback: BAAI/bge-small-en-v1.5)
-GROQ_API_KEY
-GROQ_MODEL              # llama-3.3-70b-versatile
-GROQ_FALLBACK_MODEL     # llama-3.1-8b-instant
+OPENAI_API_KEY
+OPENAI_EMBEDDING_MODEL  # text-embedding-3-small
+OPENAI_CHAT_MODEL       # gpt-4o-mini
 APP_ENV                 # dev | prod
 PORT                    # 8000
 ```
@@ -130,13 +125,13 @@ AWS_ACCESS_KEY_ID
 AWS_SECRET_ACCESS_KEY
 ```
 
-**⚠️ Immediate action required, independent of this spec:** the existing `.env` in this project already contains a real-looking Pinecone API key (`pinecone_api=...`) sitting in a folder that is not yet a git repo and has no `.gitignore`. Before doing anything else: (a) add `.env` to `.gitignore` in Phase 0 so it's never committed, and (b) rotate that Pinecone key in the Pinecone console, since it has been sitting exposed in plain text. Rename the variable itself to `PINECONE_API_KEY` for consistency.
+**⚠️ Rotate any key that passed through an insecure channel.** The Pinecone key originally shipped in this project's `.env` in plaintext before this repo existed — it's now gitignored, but should still be rotated in the Pinecone console. The OpenAI key used during development was shared directly in a chat conversation rather than a secrets manager — treat it as compromised and rotate it at platform.openai.com once real deployment keys are issued.
 
 ## 5. Pinecone Index Schema
 
 - **Name:** `rag-app-index` (configurable via `PINECONE_INDEX_NAME`)
 - **Type:** Serverless, `vector_type="dense"`
-- **Dimension:** `384` (matches both `all-MiniLM-L6-v2` and `bge-small-en-v1.5`)
+- **Dimension:** `1536` (matches OpenAI's `text-embedding-3-small`)
 - **Metric:** `cosine`
 - **Cloud / Region:** `aws` / `us-east-1` (pinned — not every region is available on the free tier)
 - **Vector ID scheme:** `{doc_id}-chunk-{chunk_index}`
@@ -194,7 +189,7 @@ Response 200:
 ### Phase 0 — Repo & environment bootstrap
 - `git init`; `.gitignore` covering `.env`, `__pycache__/`, `.venv/`, `*.pyc`, `.DS_Store`, and any Docling model-cache directory.
 - Rename `.env`'s `pinecone_api` → `PINECONE_API_KEY`; **rotate the key** (see §4 warning); create `.env.example` listing every variable name from §4 with no values.
-- `requirements.txt` pinning: `docling`, `fastapi`, `uvicorn[standard]`, `python-dotenv`, `pinecone`, `huggingface_hub`, `groq`, `python-multipart`, `pydantic-settings`, `tenacity`, `pytest`, `httpx`.
+- `requirements.txt` pinning: `docling`, `fastapi`, `uvicorn[standard]`, `python-dotenv`, `pinecone`, `langchain`, `langchain-openai`, `langchain-pinecone`, `python-multipart`, `pydantic-settings`, `pytest`, `httpx`.
 - Scaffold the `app/` package; `app/config.py` defines a pydantic `Settings` class reading all env vars from §4.
 - Rename `app/retreiver.py` → `app/retriever.py`.
 - **Gotcha:** Docling pulls in `torch` and layout-model weights on first use — do a local sanity install/run before writing the Dockerfile, since it affects image size and build time later.
@@ -224,44 +219,51 @@ Response 200:
 - **Gotcha (real, documented):** Docling provenance page numbers can be inconsistent for chunks whose source items span multiple pages or come from tables/captions (see docling-project/docling discussion #1012). Don't assume correctness — validate against the sample PDF before building on top. Store `page_numbers` as a list; use `min(page_numbers)` as the "primary" citation page but keep the full list in metadata.
 - **Gotcha:** pick `max_tokens` to fit under the embedding model's max sequence length (MiniLM/bge-small are ~256–512 tokens) to avoid silent truncation at embedding time.
 
-### Phase 2 — Embeddings & vector store
-- `app/embeddings/hf_embedder.py`:
-  ```python
-  from huggingface_hub import InferenceClient
-  client = InferenceClient(provider="hf-inference", api_key=HF_API_TOKEN, timeout=30)
-  vec = client.feature_extraction(text, model=HF_EMBEDDING_MODEL)
-  ```
-  Wrap calls with `tenacity` retry/backoff. The `provider` must be explicit — `feature_extraction` is currently supported only by `hf-inference` and `Scaleway`; the default `"auto"` provider selection cannot be trusted for this task. Free-tier serverless calls can silently queue rather than return an explicit 429, so set an explicit timeout and treat timeouts as a distinct failure mode.
-- Before locking in `HF_EMBEDDING_MODEL`, live smoke-test both `sentence-transformers/all-MiniLM-L6-v2` and `BAAI/bge-small-en-v1.5` — free-tier serverless doesn't guarantee every model is hosted/"warm". Pick whichever responds; both are 384-dim so the Pinecone index dimension doesn't change either way. If neither is available at implementation time, fall back to running the same model locally via the `sentence-transformers` package inside the container (documented contingency, not the default plan).
+### Phase 2 — Vector store (Pinecone, via LangChain + OpenAI embeddings)
 - `app/vectorstore/pinecone_client.py`:
   ```python
+  from langchain_openai import OpenAIEmbeddings
+  from langchain_pinecone import PineconeVectorStore
   from pinecone import Pinecone, ServerlessSpec
+
   pc = Pinecone(api_key=PINECONE_API_KEY)
   if not pc.has_index(PINECONE_INDEX_NAME):
       pc.create_index(
-          name=PINECONE_INDEX_NAME, vector_type="dense", dimension=384, metric="cosine",
+          name=PINECONE_INDEX_NAME, vector_type="dense", dimension=1536, metric="cosine",
           spec=ServerlessSpec(cloud="aws", region="us-east-1"), deletion_protection="disabled",
       )
-  index = pc.Index(PINECONE_INDEX_NAME)
-  index.upsert(vectors=[...])          # batch 100–500 at a time
-  index.query(vector=[...], top_k=5, include_metadata=True, filter={"doc_id": {"$eq": doc_id}})
-  ```
-  Metadata payload per vector is capped around 40KB — `chunk_text` should stay well under this given 512-token chunks, but add a defensive truncation/log-warning.
-- `scripts/ingest_sample.py`: CLI chaining Phase 1 + Phase 2 to ingest the sample PDF end-to-end, for manual testing before the API layer exists.
+  embeddings = OpenAIEmbeddings(model="text-embedding-3-small", api_key=OPENAI_API_KEY)
+  vectorstore = PineconeVectorStore(index=pc.Index(PINECONE_INDEX_NAME), embedding=embeddings)
 
-### Phase 3 — Retrieval & answer generation
-- `app/rag/prompts.py`: system prompt instructing the model to answer **only** from the provided context and to cite every claim as `[p.X, "Heading"]`.
+  vectorstore.add_documents(documents=[...], ids=[...])                       # embeds + upserts
+  vectorstore.similarity_search_with_score(query, k=5, filter={"doc_id": doc_id})  # embeds + retrieves
+  ```
+  `PineconeVectorStore` calls OpenAI's embeddings API automatically on both add and search — the app never builds or passes raw vectors. `requirements.txt` pins `langchain-pinecone`, which itself requires `pinecone>=6,<8`; watch for a stale `pinecone-plugin-inference` package left over from an older `pinecone` install in any existing venv — pinecone 6+ refuses to import if that deprecated plugin is present, and `pip install` alone won't remove it.
+  Metadata payload per vector is capped around 40KB — chunk text should stay well under this given 512-token chunks, but add a defensive truncation/log-warning.
+  **Gotcha (confirmed live):** Pinecone stores all numeric metadata as float internally and returns it that way on retrieval, even for values written as plain Python ints (e.g. a `page_number` of `7` comes back as `7.0`). Cast back to `int` explicitly wherever a page number is read back out — both in the API response and in the LLM-facing context block — rather than leaking a `p.7.0` citation.
+- `scripts/ingest_sample.py`: CLI chaining Phase 1 + Phase 2 (via `app/retriever.py`) to ingest the sample PDF end-to-end, for manual testing before the API layer exists.
+
+### Phase 3 — Retrieval & answer generation (LangChain + OpenAI)
+- `app/rag/prompts.py`: system prompt instructing the model to answer **only** from the provided context and to cite every claim as `[p.X, "Heading"]`; a `build_context_block()` helper turns retrieved `(Document, score)` pairs into that labeled context text.
 - `app/rag/pipeline.py`:
   ```python
-  from groq import Groq
-  client = Groq(api_key=GROQ_API_KEY)
-  # embed query -> pinecone query (top_k, optional doc_id filter) -> assemble context
-  # with each chunk tagged [p.X, "Heading"] -> call Groq, fall back to GROQ_FALLBACK_MODEL
-  # on rate-limit errors -> parse into {answer, sources}
-  resp = client.chat.completions.create(model=GROQ_MODEL, messages=[...])
+  from langchain_core.prompts import ChatPromptTemplate
+  from langchain_openai import ChatOpenAI
+
+  prompt = ChatPromptTemplate.from_messages([
+      ("system", SYSTEM_PROMPT),
+      ("human", "Context excerpts:\n\n{context}\n\nQuestion: {question}"),
+  ])
+  llm = ChatOpenAI(model=OPENAI_CHAT_MODEL, api_key=OPENAI_API_KEY, temperature=0, max_retries=3)
+  chain = prompt | llm   # LCEL composition
+
+  # vectorstore.similarity_search_with_score(query, k=top_k, filter=...) -> results
+  # build_context_block(results) -> context string tagged [p.X, "Heading"]
+  # chain.invoke({"context": context, "question": query}) -> response.content
   ```
-  Handle the zero-retrieval-result case explicitly (return "not found in this document" rather than letting the LLM hallucinate an answer).
-- `app/retriever.py` becomes the thin façade the routers call (`ingest_pdf(...)`, `answer_query(...)`).
+  Uses LangChain's current LCEL pipe pattern rather than the older `create_retrieval_chain`/`create_stuff_documents_chain` helpers — those moved out of core `langchain` into the separate `langchain_classic` package as of LangChain 1.0, and a direct `prompt | llm` pipe is just as readable for a single-step "stuff the context in and ask" chain. `ChatOpenAI`'s built-in `max_retries` handles transient rate-limit/network errors, so no separate fallback-model logic is needed (that was specific to Groq's unusually low free-tier limits).
+  Handle the zero-retrieval-result case explicitly (return "not found in this document" rather than calling the LLM at all).
+- `app/retriever.py` becomes the thin façade the routers call (`ingest_pdf(...)`, `answer_query(...)`); `ingest_pdf` converts each `ChunkRecord` into a LangChain `Document(page_content, metadata)` before calling `vectorstore.add_documents`.
 
 ### Phase 4 — FastAPI app & minimal UI
 - `app/main.py`: FastAPI instance, `StaticFiles` mount, router includes, CORS only if the UI is ever split out.
@@ -335,8 +337,8 @@ jobs:
 
 This action is idempotent — it creates the App Runner service on the first run and updates the image on every subsequent run — and outputs the live service URL.
 
-- **Test job requirements:** lint (`ruff`/`flake8`) + `pytest` (health-endpoint smoke test, the Phase-1 chunking-metadata validation test, and a mocked-pipeline test for `/query` that stubs HF/Pinecone/Groq). This job must pass before `build-and-deploy` runs — that's the "basic build/test/validation step" requirement.
-- **Secrets handling requirement:** application secrets (Pinecone/HF/Groq keys) are set as App Runner environment variables/secrets in production, never baked into the image; CI secrets are GitHub Actions repo secrets, and AWS auth uses OIDC role assumption rather than long-lived keys — satisfies "secure handling of credentials and secrets."
+- **Test job requirements:** lint (`ruff`) + `pytest` (health-endpoint smoke test, the Phase-1 chunking-metadata validation test, and a mocked-pipeline test for `/query` that stubs the Pinecone vector store and `ChatOpenAI`). This job must pass before `build-and-deploy` runs — that's the "basic build/test/validation step" requirement.
+- **Secrets handling requirement:** application secrets (Pinecone/OpenAI keys) are set as App Runner environment variables/secrets in production, never baked into the image; CI secrets are GitHub Actions repo secrets, and AWS auth uses OIDC role assumption rather than long-lived keys — satisfies "secure handling of credentials and secrets."
 
 ### Phase 7 — README & repo deliverables
 - `README.md` covering: architecture overview (§2), why each cloud/AI service was chosen (§1 rationale column), local setup instructions, the assumptions/limitations list (§8 below), and the live App Runner URL once deployed.
@@ -344,12 +346,12 @@ This action is idempotent — it creates the App Runner service on the first run
 
 ## 8. Assumptions & Risks
 
-1. **HF free-tier model availability isn't guaranteed** — not every embedding model is hosted/warm on serverless inference; smoke-test the chosen model live and keep a same-dimension fallback (and a local-inference contingency).
-2. **HF `feature_extraction` requires an explicit provider** (`"hf-inference"`) — the client's default `"auto"` provider selection can't be trusted for this task.
-3. **Docling provenance accuracy** — page-number metadata can be inconsistent for chunks spanning multiple pages/tables (documented upstream issue); validate against the sample PDF rather than assuming correctness.
-4. **Groq free-tier rate limits are low** (e.g. ~30 RPM / 1,000 RPD on the 70B model) — easy to hit during a demo/grading session; mitigated with retry + a smaller fallback model.
-5. **Pinecone free-tier region must be pinned** to a supported combination (`aws`/`us-east-1`) rather than left to default.
-6. **AWS App Runner is not free** — it bills for provisioned vCPU/memory continuously (no scale-to-zero), roughly $5–25+/month depending on sizing. Accepted as a cost trade-off for deployment simplicity; worth disclosing explicitly.
-7. **Docling's model-weight download** on first conversion affects cold start / image build time — mitigated by pre-baking weights into the Docker image.
-8. **Synchronous `/ingest`** won't scale past demo-sized PDFs (large documents risk request timeouts) — explicitly a v1 limitation, not solved here.
-9. **Exposed secret in the current project** — the pre-existing `.env` contains a real Pinecone key that was sitting in plaintext in an unversioned, unprotected folder. It must be rotated regardless of anything else in this spec.
+1. **OpenAI is a paid API** — no meaningful free tier beyond initial trial credit, unlike the originally-considered Groq/HF free tiers. Accepted as a cost trade-off for reliability and quality (no rate-limit juggling, no "is this model warm" uncertainty).
+2. **Docling provenance accuracy** — page-number metadata can be inconsistent for chunks spanning multiple pages/tables (documented upstream issue); validate against the sample PDF rather than assuming correctness.
+3. **Pinecone free-tier region must be pinned** to a supported combination (`aws`/`us-east-1`) rather than left to default.
+4. **Pinecone returns numeric metadata as float**, not the original int — confirmed live during implementation (a `page_number` written as `7` comes back as `7.0`). The pipeline casts back to `int` explicitly wherever a page number is read; don't assume metadata round-trips its original type.
+5. **AWS App Runner is not free** — it bills for provisioned vCPU/memory continuously (no scale-to-zero), roughly $5–25+/month depending on sizing. Accepted as a cost trade-off for deployment simplicity; worth disclosing explicitly.
+6. **Docling's model-weight download** on first conversion affects cold start / image build time — mitigated by pre-baking weights into the Docker image.
+7. **Synchronous `/ingest`** won't scale past demo-sized PDFs (large documents risk request timeouts) — explicitly a v1 limitation, not solved here.
+8. **Rotate any key that passed through an insecure channel.** The original Pinecone key shipped in this project's `.env` in plaintext before this repo existed. The OpenAI key used during development was shared directly in a chat conversation rather than a secrets manager — both should be rotated once real deployment keys are issued, independent of anything else in this spec.
+9. **LangChain 1.x moved `create_retrieval_chain`/`create_stuff_documents_chain` out of core** — into a separate `langchain_classic` package. The pipeline uses direct LCEL composition (`prompt | llm`) instead, which is both the current recommended pattern and simpler to follow for this project's single-step chain.

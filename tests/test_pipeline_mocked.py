@@ -1,34 +1,33 @@
-"""Tests the /query pipeline end-to-end with HF, Pinecone, and Groq all
-mocked out — so CI can verify the wiring (retrieve -> build context ->
-generate -> shape the response) without real API keys or network calls."""
+"""Tests the /query pipeline end-to-end with the Pinecone vector store and
+the OpenAI chat model both mocked out — so CI can verify the wiring
+(retrieve -> build context -> generate -> shape the response) without real
+API keys or network calls."""
 
-from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from fastapi.testclient import TestClient
+from langchain_core.documents import Document
 
 from app.main import app
 
 client = TestClient(app)
 
 
-def _fake_match(page, heading, text, score):
-    return SimpleNamespace(
-        metadata={"page_number": page, "section_heading": heading, "chunk_text": text},
-        score=score,
-    )
+def _fake_result(page, heading, text, score):
+    return (Document(page_content=text, metadata={"page_number": page, "section_heading": heading}), score)
 
 
 def test_query_returns_answer_with_sources():
-    fake_matches = [_fake_match(12, "Section 3.2 Limits", "The max is 42.", 0.87)]
-    fake_groq_response = SimpleNamespace(
-        choices=[SimpleNamespace(message=SimpleNamespace(content='The max is 42 [p.12, "Section 3.2 Limits"].'))]
-    )
+    fake_results = [_fake_result(12, "Section 3.2 Limits", "The max is 42.", 0.87)]
+    fake_vectorstore = MagicMock()
+    fake_vectorstore.similarity_search_with_score.return_value = fake_results
+
+    fake_llm_response = MagicMock()
+    fake_llm_response.content = 'The max is 42 [p.12, "Section 3.2 Limits"].'
 
     with (
-        patch("app.rag.pipeline.embed_text", return_value=[0.0] * 384),
-        patch("app.rag.pipeline.query_chunks", return_value=fake_matches),
-        patch("app.rag.pipeline._client.chat.completions.create", return_value=fake_groq_response),
+        patch("app.rag.pipeline.get_vectorstore", return_value=fake_vectorstore),
+        patch("app.rag.pipeline._chain.invoke", return_value=fake_llm_response),
     ):
         res = client.post("/query", json={"query": "What is the max?"})
 
@@ -40,15 +39,17 @@ def test_query_returns_answer_with_sources():
     ]
 
 
-def test_query_with_no_matches_returns_not_found_without_calling_groq():
+def test_query_with_no_matches_returns_not_found_without_calling_llm():
+    fake_vectorstore = MagicMock()
+    fake_vectorstore.similarity_search_with_score.return_value = []
+
     with (
-        patch("app.rag.pipeline.embed_text", return_value=[0.0] * 384),
-        patch("app.rag.pipeline.query_chunks", return_value=[]),
-        patch("app.rag.pipeline._client.chat.completions.create") as mock_groq,
+        patch("app.rag.pipeline.get_vectorstore", return_value=fake_vectorstore),
+        patch("app.rag.pipeline._chain.invoke") as mock_invoke,
     ):
         res = client.post("/query", json={"query": "Anything not in the doc?"})
 
     assert res.status_code == 200
     assert res.json()["sources"] == []
     assert "does not appear to contain" in res.json()["answer"]
-    mock_groq.assert_not_called()
+    mock_invoke.assert_not_called()

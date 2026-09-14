@@ -23,14 +23,12 @@ class Settings(BaseSettings):
     pinecone_cloud: str = "aws"
     pinecone_region: str = "us-east-1"
 
-    # HuggingFace Inference API
-    hf_api_token: str = ""
-    hf_embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
-
-    # Groq
-    groq_api_key: str = ""
-    groq_model: str = "llama-3.3-70b-versatile"
-    groq_fallback_model: str = "llama-3.1-8b-instant"
+    # OpenAI — both embeddings and answer generation go through OpenAI now,
+    # via LangChain. text-embedding-3-small is 1536-dim; the Pinecone index
+    # dimension in app/vectorstore/pinecone_client.py must match.
+    openai_api_key: str = ""
+    openai_embedding_model: str = "text-embedding-3-small"
+    openai_chat_model: str = "gpt-4o-mini"
 
     # App
     app_env: str = "dev"
