@@ -1,0 +1,79 @@
+# CI/CD pipeline (see SPECS.md §7 Phase 6 for the full rationale).
+#
+# - `test` runs on every push and PR into main: lint + pytest. Only tests
+#   that mock external services (HF/Pinecone/Groq) run here, so no real
+#   secrets are needed for this job.
+# - `build-and-deploy` runs only on pushes/merges to main, and only after
+#   `test` passes: builds the Docker image, pushes it to ECR, and deploys
+#   it to the existing AWS App Runner service.
+#
+# AWS auth uses GitHub's OIDC provider to assume an IAM role — no
+# long-lived AWS access keys are stored in GitHub. See SPECS.md §7 for the
+# one-time IAM role bootstrap this depends on.
+
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Run tests
+        run: pytest -v
+
+  build-and-deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # required to assume the AWS role via OIDC
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC, no static keys)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t "$REGISTRY/$REPOSITORY:$IMAGE_TAG" -t "$REGISTRY/$REPOSITORY:latest" .
+          docker push "$REGISTRY/$REPOSITORY" --all-tags
+
+      - name: Deploy to AWS App Runner
+        uses: awslabs/amazon-app-runner-deploy@main
+        with:
+          service: ${{ vars.APP_RUNNER_SERVICE_NAME }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ github.sha }}
+          access-role-arn: ${{ secrets.APP_RUNNER_ECR_ACCESS_ROLE_ARN }}
+          region: ${{ vars.AWS_REGION }}
+          cpu: 1
+          memory: 2
+          wait-for-service-stability-seconds: 1200
