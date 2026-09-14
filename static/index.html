@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>RAG App</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <main>
+    <h1>PDF Q&amp;A</h1>
+    <p class="subtitle">Ask a question about an ingested PDF. Answers cite the page and section they came from.</p>
+
+    <section class="ingest">
+      <h2>1. Ingest a PDF</h2>
+      <input type="file" id="pdf-file" accept="application/pdf" />
+      <button id="ingest-btn">Upload &amp; Ingest</button>
+      <p id="ingest-status"></p>
+    </section>
+
+    <section class="query">
+      <h2>2. Ask a question</h2>
+      <input type="text" id="query-input" placeholder="e.g. What is the maximum allowed X?" />
+      <button id="query-btn">Ask</button>
+      <div id="answer"></div>
+      <ul id="sources"></ul>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>

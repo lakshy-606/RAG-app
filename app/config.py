@@ -12,18 +12,23 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
+    # Secrets default to "" rather than being required: this lets the app
+    # boot (and /health respond, and CI run tests that don't touch these
+    # services) without real keys present. Calls that actually need a key
+    # fail obviously and immediately at the client, not silently here.
+
     # Pinecone
-    pinecone_api_key: str
+    pinecone_api_key: str = ""
     pinecone_index_name: str = "rag-app-index"
     pinecone_cloud: str = "aws"
     pinecone_region: str = "us-east-1"
 
     # HuggingFace Inference API
-    hf_api_token: str
+    hf_api_token: str = ""
     hf_embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
 
     # Groq
-    groq_api_key: str
+    groq_api_key: str = ""
     groq_model: str = "llama-3.3-70b-versatile"
     groq_fallback_model: str = "llama-3.1-8b-instant"
 
