@@ -113,12 +113,21 @@ jobs:
 
             aws lambda create-function-url-config \
               --function-name "$FUNCTION_NAME" --auth-type NONE
+            # Since October 2025, a public (AuthType=NONE) function URL needs
+            # BOTH of these statements — InvokeFunctionUrl alone 403s with
+            # AccessDeniedException despite AuthType being NONE.
             aws lambda add-permission \
               --function-name "$FUNCTION_NAME" \
+              --statement-id FunctionURLAllowPublicAccess \
               --action lambda:InvokeFunctionUrl \
               --principal "*" \
-              --function-url-auth-type NONE \
-              --statement-id FunctionURLAllowPublicAccess
+              --function-url-auth-type NONE
+            aws lambda add-permission \
+              --function-name "$FUNCTION_NAME" \
+              --statement-id FunctionURLInvokeAllowPublicAccess \
+              --action lambda:InvokeFunction \
+              --principal "*" \
+              --invoked-via-function-url
           fi
 
           echo "### Deployed" >> "$GITHUB_STEP_SUMMARY"
