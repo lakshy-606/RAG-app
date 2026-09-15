@@ -17,13 +17,13 @@ Status: planning document. No application code exists yet — this file is the s
 | Answer generation | **OpenAI** `gpt-4o-mini`, via LangChain `ChatOpenAI` | Strong instruction-following for citation-constrained answers; same provider as embeddings keeps the model-facing stack to one API key. |
 | Backend | **FastAPI** | REST API + easy static-file serving for a minimal UI, automatic OpenAPI docs. |
 | UI | Minimal static HTML/JS page served by FastAPI | Enough to demo the app via a browser URL without a separate frontend deploy. |
-| Container | **Docker** | Required for ECS Express Mode deployment. |
-| Cloud | **Amazon ECS Express Mode** | "Give it a container image + two IAM roles, get a URL" — AWS provisions the ECS/Fargate service, Application Load Balancer, auto scaling, and networking for you. Chosen after AWS closed **AWS App Runner** (the original choice, matching the assignment's own example) to new customers on 2026-04-30 and named Express Mode as its direct replacement. |
-| CI/CD | **GitHub Actions** | Test → build → push to ECR → deploy to ECS Express Mode, triggered on push/merge to `main`. |
+| Container | **Docker** | Runs unmodified locally, and on Lambda via the AWS Lambda Web Adapter (see Phase 5). |
+| Cloud | **AWS Lambda** (container image + Function URL) | The only AWS compute option that's genuinely free forever (1M requests + 400,000 GB-seconds/month, no expiration), not just during a temporary credit window. Third choice, after two rejected: **AWS App Runner** (the original pick, matching the assignment's own example) closed to new customers on 2026-04-30; its AWS-recommended replacement, **Amazon ECS Express Mode**, works but requires an Application Load Balancer billing ~$16–20/month continuously — not actually free. Trade-off: ~10-30s cold starts after idle periods (Docling/torch loading into a fresh execution environment), acceptable for a low-traffic demo. |
+| CI/CD | **GitHub Actions** | Test → build → push to ECR → create/update the Lambda function via AWS CLI, triggered on push/merge to `main`. |
 
 **Required deliverables (per the assignment):**
 1. Source-code repository (new GitHub repo — see Phase 0 / Phase 7).
-2. A deployed application URL (Amazon ECS Express Mode — see Phase 6).
+2. A deployed application URL (AWS Lambda Function URL — see Phase 6).
 3. The CI/CD pipeline configuration (`.github/workflows/ci-cd.yml` — see Phase 6).
 4. A brief README covering approach, cloud-service selection, and assumptions (see Phase 7).
 
@@ -104,11 +104,11 @@ PORT                    # 8000
 ```
 AWS_ROLE_ARN                       # OIDC-assumed IAM role for CI — no long-lived keys
 AWS_REGION
-AWS_ACCOUNT_ID                     # used to build ecsTaskExecutionRole / ecsInfrastructureRoleForExpressServices ARNs
+AWS_ACCOUNT_ID                     # used to build the rag-app-lambda-execution-role ARN
 ECR_REPOSITORY
-ECS_SERVICE
-PINECONE_API_KEY                   # also passed through to the ECS Express Mode service itself
-OPENAI_API_KEY                     # (see the deploy step's environment-variables in §7 Phase 6)
+LAMBDA_FUNCTION_NAME
+PINECONE_API_KEY                   # also passed through to the Lambda function itself
+OPENAI_API_KEY                     # (see the deploy step's environment JSON in §7 Phase 6)
 # fallback only if OIDC bootstrap is skipped:
 AWS_ACCESS_KEY_ID
 AWS_SECRET_ACCESS_KEY
@@ -258,19 +258,20 @@ Response 200:
 - **Gotcha:** synchronous `/ingest` blocks on Docling conversion + per-chunk embedding calls for the whole PDF — fine for a ~40-page demo doc, but call this out in the README as a known v1 scaling limitation (future: background task/queue).
 
 ### Phase 5 — Containerization
-- `Dockerfile`: slim Python base image, install Docling's system dependencies, `pip install -r requirements.txt`, copy the app, `EXPOSE 8000`, `CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]`.
+- `Dockerfile`: slim Python base image, install Docling's system dependencies, `pip install -r requirements.txt`, copy the app, `EXPOSE 8000`, `ENTRYPOINT ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]`.
 - `.dockerignore`: exclude `.env`, `.git`, test caches, local venv.
-- **Gotcha:** Docling downloads layout/OCR model weights on first conversion call unless pre-cached. Either run a throwaway conversion during `docker build` to bake the weights into the image, or accept a slower first request in production — document the trade-off made.
+- **AWS Lambda Web Adapter** (see Phase 6): one `COPY --from=` line pulling `/lambda-adapter` into `/opt/extensions/`, plus `ENV PORT=8000` and `ENV AWS_LWA_READINESS_CHECK_PATH=/health`. Lets the exact same image run on Lambda with zero application code changes — the adapter runs as a Lambda extension and proxies Lambda invoke events to real HTTP requests against the unmodified uvicorn server. Inert outside Lambda, so `docker run` locally still works identically.
+- **Gotcha:** Docling downloads layout/OCR model weights on first conversion call unless pre-cached. Either run a throwaway conversion during `docker build` to bake the weights into the image, or accept a slower first request in production — document the trade-off made. This matters even more on Lambda, where a cold start already has to load everything from scratch.
 
-### Phase 6 — CI/CD & cloud deploy (Amazon ECS Express Mode)
+### Phase 6 — CI/CD & cloud deploy (AWS Lambda)
 **One-time manual AWS bootstrap** (documented here, not scripted by the workflow):
 1. Create an ECR repository for the app image.
 2. Register GitHub's OIDC provider in AWS IAM (`https://token.actions.githubusercontent.com`, audience `sts.amazonaws.com`).
-3. Create the two IAM roles ECS Express Mode itself needs (not the CI role):
-   - `ecsTaskExecutionRole` — trust principal `ecs-tasks.amazonaws.com`, managed policy `AmazonECSTaskExecutionRolePolicy`.
-   - `ecsInfrastructureRoleForExpressServices` — trust principal `ecs.amazonaws.com`, managed policy `AmazonECSInfrastructureRoleforExpressGatewayServices`.
-4. Create the GitHub Actions deploy role, trusted via OIDC for `repo:<org>/<repo>:ref:refs/heads/main`, with a least-privilege policy: push to the specific ECR repo; `ecs:CreateCluster`, `RegisterTaskDefinition`, `CreateExpressGatewayService`, `UpdateExpressGatewayService`, `DescribeExpressGatewayService`, `DescribeClusters`, `DescribeServices`, `ListServiceDeployments`, `DescribeServiceDeployments`, `TagResource`, `UntagResource` (per the deploy action's documented policy); and `iam:PassRole` scoped to just the two roles above. Store only the **role ARN** as a GitHub secret — never a static key pair — unless OIDC setup is explicitly out of scope, in which case fall back to `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY` secrets.
-5. No manual ECS cluster or service creation needed — the deploy action creates the Express Mode service (and its default cluster, if missing) on the first run.
+   - **Real gotcha hit here:** for repos created after 2026-07-15, GitHub's OIDC token `sub` claim uses an *immutable* format — `repo:<org>@<org_id>/<repo>@<repo_id>:ref:refs/heads/<branch>` — not the plain-name `repo:<org>/<repo>:ref:refs/heads/<branch>` format most existing docs/tutorials still show. A trust policy written for the old format fails with a generic `AccessDenied: Not authorized to perform sts:AssumeRoleWithWebIdentity` — no indication of *why*. The fix: pull the real `sub` value AWS actually received from a CloudTrail `AssumeRoleWithWebIdentity` event (Event history, filter by event name) and match the trust policy condition to that exactly.
+3. Create the Lambda execution role — `rag-app-lambda-execution-role`, trust principal `lambda.amazonaws.com`, managed policy `AWSLambdaBasicExecutionRole` (just enough for CloudWatch Logs).
+4. Create the GitHub Actions deploy role, trusted via OIDC for `repo:<org>/<repo>:ref:refs/heads/main` (using the correct immutable `sub` format from step 2), with a least-privilege policy: push to the specific ECR repo; `lambda:CreateFunction`, `UpdateFunctionCode`, `UpdateFunctionConfiguration`, `GetFunction`, `CreateFunctionUrlConfig`, `GetFunctionUrlConfig`, `AddPermission`; and `iam:PassRole` scoped to just the execution role above. Store only the **role ARN** as a GitHub secret — never a static key pair.
+5. **Create the ECS/Lambda service-linked role if this AWS account has never used the given compute service before** — a first-time account may lack it entirely, which fails deployment with `Unable to assume the service linked role`. Fastest fix: AWS CloudShell (built into the console, already authenticated) → `aws iam create-service-linked-role --aws-service-name <service>.amazonaws.com`. Lambda itself doesn't need one for this setup, but this bit the ECS Express Mode attempt and is worth checking for any first-time-per-account AWS service.
+6. No manual Lambda function creation needed — the workflow creates it (and its Function URL) on the first run.
 
 **`.github/workflows/ci-cd.yml`**, triggered on `push`/`merge` to `main` (plus `pull_request` for the test job only):
 
@@ -313,28 +314,36 @@ jobs:
             -t ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ github.sha }} \
             -t ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:latest .
           docker push ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }} --all-tags
-      - uses: aws-actions/amazon-ecs-deploy-express-service@v1
-        with:
-          service-name: ${{ vars.ECS_SERVICE }}
-          image: ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ github.sha }}
-          execution-role-arn: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/ecsTaskExecutionRole
-          infrastructure-role-arn: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/ecsInfrastructureRoleForExpressServices
-          container-port: 8000
-          health-check-path: /health
-          cpu: "1024"
-          memory: "2048"
-          environment-variables: |
-            [
-              {"name": "APP_ENV", "value": "prod"},
-              {"name": "PINECONE_API_KEY", "value": "${{ secrets.PINECONE_API_KEY }}"},
-              {"name": "OPENAI_API_KEY", "value": "${{ secrets.OPENAI_API_KEY }}"}
-            ]
+      - name: Deploy to AWS Lambda
+        env:
+          FUNCTION_NAME: ${{ vars.LAMBDA_FUNCTION_NAME }}
+          IMAGE_URI: ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ github.sha }}
+          EXECUTION_ROLE_ARN: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/rag-app-lambda-execution-role
+          PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          cat > /tmp/env.json << EOF
+          {"Variables":{"APP_ENV":"prod","PINECONE_API_KEY":"$PINECONE_API_KEY","OPENAI_API_KEY":"$OPENAI_API_KEY"}}
+          EOF
+          if aws lambda get-function --function-name "$FUNCTION_NAME" >/dev/null 2>&1; then
+            aws lambda update-function-code --function-name "$FUNCTION_NAME" --image-uri "$IMAGE_URI" --publish
+            aws lambda wait function-updated --function-name "$FUNCTION_NAME"
+            aws lambda update-function-configuration --function-name "$FUNCTION_NAME" --environment file:///tmp/env.json
+          else
+            aws lambda create-function --function-name "$FUNCTION_NAME" --package-type Image \
+              --code ImageUri="$IMAGE_URI" --role "$EXECUTION_ROLE_ARN" \
+              --timeout 120 --memory-size 3008 --environment file:///tmp/env.json
+            aws lambda wait function-active --function-name "$FUNCTION_NAME"
+            aws lambda create-function-url-config --function-name "$FUNCTION_NAME" --auth-type NONE
+            aws lambda add-permission --function-name "$FUNCTION_NAME" --action lambda:InvokeFunctionUrl \
+              --principal "*" --function-url-auth-type NONE --statement-id FunctionURLAllowPublicAccess
+          fi
 ```
 
-This action is idempotent — it creates the Express Mode service (ECS service, ALB, auto scaling, networking) on the first run and updates the running task on every subsequent run — and its `environment-variables` input is how the *running app* gets its secrets, separate from the OIDC role AWS auth CI itself uses to deploy. `cpu`/`memory` here are ECS units (1024 = 1 vCPU, memory in MiB), not the plain vCPU-count/GB numbers App Runner's API used.
+No third-party deploy action — plain AWS CLI, already preinstalled on GitHub's `ubuntu-latest` runners, called directly. `memory-size 3008` (MB) and `timeout 120` (seconds) give Docling/torch headroom for a cold start; well within the 400,000 GB-seconds/month free allotment for a low-traffic demo (3GB × 120s per cold invocation is a tiny fraction of that budget).
 
 - **Test job requirements:** lint (`ruff`) + `pytest` (health-endpoint smoke test, the Phase-1 chunking-metadata validation test, and a mocked-pipeline test for `/query` that stubs the Pinecone vector store and `ChatOpenAI`). This job must pass before `build-and-deploy` runs — that's the "basic build/test/validation step" requirement.
-- **Secrets handling requirement:** application secrets (Pinecone/OpenAI keys) are set as ECS task environment variables in production, never baked into the image; CI secrets are GitHub Actions repo secrets, and AWS auth uses OIDC role assumption rather than long-lived keys — satisfies "secure handling of credentials and secrets."
+- **Secrets handling requirement:** application secrets (Pinecone/OpenAI keys) are set as Lambda environment variables in production, never baked into the image; CI secrets are GitHub Actions repo secrets, and AWS auth uses OIDC role assumption rather than long-lived keys — satisfies "secure handling of credentials and secrets."
 
 ### Phase 7 — README & repo deliverables
 - `README.md` covering: architecture overview (§2), why each cloud/AI service was chosen (§1 rationale column), local setup instructions, the assumptions/limitations list (§8 below), and the live ECS Express Mode URL once deployed.
@@ -346,8 +355,11 @@ This action is idempotent — it creates the Express Mode service (ECS service, 
 2. **Docling provenance accuracy** — page-number metadata can be inconsistent for chunks spanning multiple pages/tables (documented upstream issue); validate against the sample PDF rather than assuming correctness.
 3. **Pinecone free-tier region must be pinned** to a supported combination (`aws`/`us-east-1`) rather than left to default.
 4. **Pinecone returns numeric metadata as float**, not the original int — confirmed live during implementation (a `page_number` written as `7` comes back as `7.0`). The pipeline casts back to `int` explicitly wherever a page number is read; don't assume metadata round-trips its original type.
-5. **AWS App Runner closed to new customers on 2026-04-30** — confirmed against AWS's own docs mid-implementation, after IAM setup for it had already begun. Pivoted to Amazon ECS Express Mode, AWS's own named replacement, before any App Runner-specific resources were actually created. ECS Express Mode isn't free either — it bills for the underlying Fargate/ALB resources, same as any ECS deployment — but there's no charge for Express Mode itself.
-6. **Docling's model-weight download** on first conversion affects cold start / image build time — mitigated by pre-baking weights into the Docker image.
-7. **Synchronous `/ingest`** won't scale past demo-sized PDFs (large documents risk request timeouts) — explicitly a v1 limitation, not solved here.
-8. **Rotate any key that passed through an insecure channel.** The original Pinecone key shipped in this project's `.env` in plaintext before this repo existed. The OpenAI key and a GitHub PAT used during development were both shared directly in a chat conversation rather than a secrets manager — all should be rotated once real deployment keys are issued, independent of anything else in this spec.
+5. **The cloud target changed twice during implementation, for two different real reasons.** AWS App Runner (original choice) closed to new customers on 2026-04-30 — pivoted to Amazon ECS Express Mode, AWS's own named replacement, before any App Runner-specific resources were created. Then, mid-AWS-setup, it became clear ECS Express Mode's mandatory Application Load Balancer isn't actually free (~$16-20/month continuously) — for a demo project, that's the wrong trade-off, so it moved again to AWS Lambda + Function URL, which is genuinely free forever at this project's scale. No wasted IAM/OIDC work either time — only the deploy-target-specific roles and the workflow's final deploy step needed replacing.
+6. **Lambda cold starts (~10-30s)** are the accepted trade-off for landing on AWS's actually-free tier — Docling/torch loading into a fresh execution environment after idle periods. Fine for a low-traffic demo; would need provisioned concurrency (which costs money, defeating the point) for steady production traffic.
+7. **Docling's model-weight download** on first conversion affects cold start / image build time — mitigated by pre-baking weights into the Docker image, which matters even more on Lambda than it would have on ECS.
+8. **Synchronous `/ingest`** won't scale past demo-sized PDFs (large documents risk request timeouts) — explicitly a v1 limitation, not solved here. Also now bounded by Lambda's own hard 15-minute execution limit, which a 40-page demo PDF is nowhere close to.
+9. **GitHub's OIDC subject-claim format changed for repos created after 2026-07-15** (see §7 Phase 6) — a real gotcha hit mid-implementation, not a hypothetical one, and worth checking for on any fresh OIDC-to-AWS setup going forward.
+10. **A first-time AWS account may be missing a compute service's service-linked role entirely** — hit during the (since-abandoned) ECS Express Mode attempt as `Unable to assume the service linked role`; fixed via `aws iam create-service-linked-role` in AWS CloudShell. Worth checking for early on any AWS service being used for the first time in an account.
+11. **Rotate any key that passed through an insecure channel.** The original Pinecone key shipped in this project's `.env` in plaintext before this repo existed. The OpenAI key and a GitHub PAT used during development were both shared directly in a chat conversation rather than a secrets manager — all should be rotated once real deployment keys are issued, independent of anything else in this spec.
 9. **LangChain 1.x moved `create_retrieval_chain`/`create_stuff_documents_chain` out of core** — into a separate `langchain_classic` package. The pipeline uses direct LCEL composition (`prompt | llm`) instead, which is both the current recommended pattern and simpler to follow for this project's single-step chain.
