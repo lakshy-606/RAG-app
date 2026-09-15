@@ -97,7 +97,8 @@ jobs:
               --function-name "$FUNCTION_NAME" --image-uri "$IMAGE_URI" --publish
             aws lambda wait function-updated --function-name "$FUNCTION_NAME"
             aws lambda update-function-configuration \
-              --function-name "$FUNCTION_NAME" --environment file:///tmp/env.json
+              --function-name "$FUNCTION_NAME" --environment file:///tmp/env.json \
+              --timeout 180 --memory-size 3008
             aws lambda wait function-updated --function-name "$FUNCTION_NAME"
           else
             echo "Function doesn't exist — creating it."
@@ -106,7 +107,7 @@ jobs:
               --package-type Image \
               --code ImageUri="$IMAGE_URI" \
               --role "$EXECUTION_ROLE_ARN" \
-              --timeout 120 \
+              --timeout 180 \
               --memory-size 3008 \
               --environment file:///tmp/env.json
             aws lambda wait function-active --function-name "$FUNCTION_NAME"
