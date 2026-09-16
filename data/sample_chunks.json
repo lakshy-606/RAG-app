@@ -1,0 +1,856 @@
+{
+  "doc_id": "aaee00a1-974e-4e54-93ac-65583c39116d",
+  "source_filename": "relevant_section_identification-sample.pdf",
+  "num_chunks": 93,
+  "chunks": [
+    {
+      "chunk_index": 0,
+      "page_number": 1.0,
+      "page_numbers": [
+        "1"
+      ],
+      "section_heading": "General Description",
+      "text": "General Description\nThe  MAX77751  is  a  standalone,  3.15A  charger  with integrated  USB  Type-C \u00ae   CC  detection  and  reverse boost  capability.  The  fast-charge  current  and  top-off current thresholds are easily configured with resistors. The MAX77751 operates with an input voltage of 4.5V to 13.7V and has a maximum input current limit of 3A. The IC also implements the adaptive input current limit (AICL)  function  that  regulates  the  input  voltage  by reducing input current, to prevent the voltage of a weak adapter from collapsing or folding back.\nThe USB Type-C Configuration Channel (CC) detection pins on the MAX77751 enable automatic USB Type C power source detection and input current limit configuration. To support a variety of legacy USB as well as  proprietary  adapters,  the  IC  also  integrates  BC1.2 detection using the D+ and D- pins. The IC runs the CC detection and BC1.2 detection automatically without any software as soon as the USB plug is inserted.\nThe IC also offers Reverse-Boost capability up to 5.1V, 1.5A, which can be enabled with the ENBST pin. The STAT pin indicates charging status, while the INOKB pin indicates valid input voltage. Charging can be stopped by pulling the ITOPOFF pin low.\nThe  MAX77751  is  equipped  with  a  Smart  Power Selector\u2122 and a battery true-disconnect FET to control the charging and discharging of the battery or isolate the battery in case of a fault. The MAX77751 is offered in several variants to support Li-ion batteries with various termination voltages from 4.1V to 4.5V. The IC comes in a 3mm x 3mm, 0.4mm pitch 24-lead FC2QFN package making it suitable for low-cost PCB assembly."
+    },
+    {
+      "chunk_index": 1,
+      "page_number": 1.0,
+      "page_numbers": [
+        "1"
+      ],
+      "section_heading": "Applications",
+      "text": "Applications\n- Mobile Point-of-Sale (mPOS) Terminals\n- Portable Medical Devices\n- Wireless Headphones\n- GPS Trackers\n- Charging Cradles for Wearable Devices\n- Power Banks\n- Mobile Routers\nUSB Type-C is a registered trademark of USB Implementers Forum.\nSmart Power Selector is a trademark of Maxim Integrated Products, Inc."
+    },
+    {
+      "chunk_index": 2,
+      "page_number": 1.0,
+      "page_numbers": [
+        "1"
+      ],
+      "section_heading": "Benefits and Features",
+      "text": "Benefits and Features\n- Up to 16V Protection\n- 13.7V Maximum Input Operating Voltage\n- 3.15A Maximum Charging Current\n- 6A Discharge Current Protection\n- No Firmware or Communication Required\n- Integrated USB Detection\n- CC Detection for USB Type-C\n- BC1.2 Detection for Legacy SDP, DCP, and CDP\n- Automatic Input Current Limit Configuration\n- Input Voltage Regulation with Adaptive Input Current Limit (AICL)\n- Reverse Boost Capability up to 5.1V, 1.5A\n- Pin Control of All Functions\n- Resistor-Configurable Fast-Charge Current\n- Resistor-Configurable Top-Off Current\n- ENBST Pin to Enable and Disable Reverse Boost\n- STAT Pin to Indicate Charging Status\n- INOKB Pin to Indicate Input Power-OK (POK)\n- ITOPOFF Pin to Disable Charge\n- Integrated Battery True-Disconnect FET\n- 3mm x 3mm, 24 Lead FC2QFN Package\nOrdering Information appears at end of data sheet."
+    },
+    {
+      "chunk_index": 3,
+      "page_number": 3.0,
+      "page_numbers": [
+        "3"
+      ],
+      "section_heading": "Absolute Maximum Ratings",
+      "text": "Absolute Maximum Ratings\n\nCHGIN to GND ................................................ -0.3V to +16.0V = BYP, LX to PGND............................................ -0.3V to +16.0V. CHGIN to GND ................................................ -0.3V to +16.0V = BATT, SYS, INOKB, STAT, ENBST to GND ..... -0.3V to +6.0V. CHGIN to GND ................................................ -0.3V to +16.0V = BST to PVL...................................................... -0.3V to +16.0V. CHGIN to GND ................................................ -0.3V to +16.0V = BST to LX .......................................................... -0.3V to +2.2V. CHGIN to GND"
+    },
+    {
+      "chunk_index": 4,
+      "page_number": 3.0,
+      "page_numbers": [
+        "3"
+      ],
+      "section_heading": "Absolute Maximum Ratings",
+      "text": "Absolute Maximum Ratings\n ................................................ -0.3V to +16.0V = DN, DP to GND ................................................. -0.3V to +6.0V. CHGIN to GND ................................................ -0.3V to +16.0V = CC1, CC2 to GND ............................................. -0.3V to +6.0V"
+    },
+    {
+      "chunk_index": 5,
+      "page_number": 3.0,
+      "page_numbers": [
+        "3"
+      ],
+      "section_heading": "3.15A USB-C Autonomous Charger for 1-Cell Li+ Batteries",
+      "text": "3.15A USB-C Autonomous Charger for 1-Cell Li+ Batteries\nVDD, PVL, IFAST, ITOPOFF to GND ................ -0.2V to +2.2V\nVCHGIN , BYP Continuous Current .............................  3.2A RMS\nLX, PGND Continuous Current ..................................  3.5A RMS\nSYS, BATT Continuous Current  .................................  4.5A RMS\nOperating Temperature Range ........................  -40\u00b0C to +85\u00b0C\nStorage Temperature Range .........................  -65\u00b0C to +150\u00b0C\nStresses beyond those listed under 'Absolute Maximum Ratings' may cause permanent damage to the device. These are stress ratings only, and functional operation of the device at these or any other conditions beyond those indicated in the operational sections of the specifications is not implied. Exposure to absolute maximum rating conditions for extended periods may affect device reliability."
+    },
+    {
+      "chunk_index": 6,
+      "page_number": 3.0,
+      "page_numbers": [
+        "3"
+      ],
+      "section_heading": "24 FC2QFN",
+      "text": "24 FC2QFN\nPackage Code, 1 = F243A3F+1. Outline Number, 1 = 21-100385. Land Pattern Number, 1 = 90-100128. Thermal Resistance, Four-Layer Board:, 1 = Thermal Resistance, Four-Layer Board:. Junction-to-Ambient (\u03b8 JA ), 1 = 31\u00b0C/W. Junction-to-Case Thermal Resistance (\u03b8 JC ), 1 = 7.5\u00b0C/W"
+    },
+    {
+      "chunk_index": 7,
+      "page_number": 4.0,
+      "page_numbers": [
+        "4"
+      ],
+      "section_heading": "for 1-Cell Li+ Batteries",
+      "text": "for 1-Cell Li+ Batteries\nFor the latest package outline information and land patterns (footprints), go to www.maximintegrated.com/packages . Note that a '+', '#', or '-' in the package code indicates RoHS status only. Package drawings may show a different suffix character, but the drawing pertains to the package regardless of RoHS status.\nPackage thermal resistances were obtained using the method described in JEDEC specification JESD51-7, using a four-layer board. For detailed information on package thermal considerations, refer to www.maximintegrated.com/thermal-tutorial ."
+    },
+    {
+      "chunk_index": 8,
+      "page_number": 5.0,
+      "page_numbers": [
+        "5"
+      ],
+      "section_heading": "Electrical Characteristics",
+      "text": "Electrical Characteristics\n(Limits are 100% tested at T A  = +25\u00b0C. Limits over the operating temperature range and relevant supply voltage range are guaranteed by design and characterization.)"
+    },
+    {
+      "chunk_index": 9,
+      "page_number": 5.0,
+      "page_numbers": [
+        "5"
+      ],
+      "section_heading": "Electrical Characteristics",
+      "text": "Electrical Characteristics\n\nGENERAL ELECTRICAL CHARACTERISTICS, SYMBOL = GENERAL ELECTRICAL CHARACTERISTICS. GENERAL ELECTRICAL CHARACTERISTICS, CONDITIONS = GENERAL ELECTRICAL CHARACTERISTICS. GENERAL ELECTRICAL CHARACTERISTICS, MIN = GENERAL ELECTRICAL CHARACTERISTICS. GENERAL ELECTRICAL CHARACTERISTICS, TYP = GENERAL ELECTRICAL CHARACTERISTICS. GENERAL ELECTRICAL CHARACTERISTICS, MAX = GENERAL ELECTRICAL CHARACTERISTICS. GENERAL ELECTRICAL CHARACTERISTICS, UNITS = GENERAL ELECTRICAL CHARACTERISTICS. Battery Only Quiescent Current, SYMBOL = I BATT_Q. Battery Only Quiescent Current, CONDITIONS = USB Type-C as UFP and BATT = SYS = 3.6V. Battery Only Quiescent Current, MIN = . Battery Only Quiescent Current, TYP = 30. Battery Only Quiescent Current, MAX = 50. Battery Only Quiescent Current, UNITS = \u00b5A. SWITCHING MODE CHARGER, SYMBOL = SWITCHING MODE CHARGER. SWITCHING MODE CHARGER, CONDITIONS = SWITCHING MODE CHARGER. SWITCHING MODE CHARGER, MIN = SWITCHING MODE CHARGER. SWITCHING MODE CHARGER, TYP = SWITCHING MODE CHARGER. SWITCHING MODE CHARGER, MAX = SWITCHING MODE CHARGER. SWITCHING MODE CHARGER, UNITS = SWITCHING MODE CHARGER. CHGIN Voltage Range, SYMBOL = V CHGIN. CHGIN Voltage Range, CONDITIONS = Operating voltage (Note 1). CHGIN Voltage Range, MIN = V CHGIN_ UVLO. CHGIN Voltage Range, TYP = . CHGIN Voltage Range, MAX = V CHGIN_ OVLO. CHGIN Voltage Range, UNITS = V. CHGIN Overvoltage Threshold, SYMBOL = V CHGIN_OVLO. CHGIN Overvoltage Threshold, CONDITIONS = V CHGIN rising. CHGIN Overvoltage Threshold, MIN = 13.4. CHGIN Overvoltage Threshold, TYP = 13.7. CHGIN Overvoltage Threshold, MAX = 14. CHGIN Overvoltage Threshold, UNITS = V. CHGIN Overvoltage Threshold Hysteresis, SYMBOL = V CHGINH_OVL O. CHGIN Overvoltage Threshold Hysteresis, CONDITIONS = V CHGIN falling. CHGIN Overvoltage Threshold Hysteresis, MIN = . CHGIN Overvoltage Threshold Hysteresis, TYP = 300. CHGIN Overvoltage Threshold Hysteresis, MAX = . CHGIN Overvoltage Threshold Hysteresis, UNITS = mV. CHGIN to GND Minimum Turn-On Threshold Accuracy, SYMBOL = V CHGIN_UVLO. CHGIN to GND"
+    },
+    {
+      "chunk_index": 10,
+      "page_number": 5.0,
+      "page_numbers": [
+        "5"
+      ],
+      "section_heading": "Electrical Characteristics",
+      "text": "Electrical Characteristics\n\n Minimum Turn-On Threshold Accuracy, CONDITIONS = V CHGIN rising. CHGIN to GND Minimum Turn-On Threshold Accuracy, MIN = 4.6. CHGIN to GND Minimum Turn-On Threshold Accuracy, TYP = 4.7. CHGIN to GND Minimum Turn-On Threshold Accuracy, MAX = 4.8. CHGIN to GND Minimum Turn-On Threshold Accuracy, UNITS = V. CHGIN to SYS Minimum Turn-On Threshold, SYMBOL = V CHGIN2SYS. CHGIN to SYS Minimum Turn-On Threshold, CONDITIONS = V CHGIN rising. CHGIN to SYS Minimum Turn-On Threshold, MIN = V SYS + 0.12. CHGIN to SYS Minimum Turn-On Threshold, TYP = V SYS + 0.20. CHGIN to SYS Minimum Turn-On Threshold, MAX = V SYS + 0.28. CHGIN to SYS Minimum Turn-On Threshold, UNITS = V. CHGIN Adaptive Voltage Regulation Threshold Accuracy, SYMBOL = V CHGIN_REG. CHGIN Adaptive Voltage Regulation Threshold Accuracy, CONDITIONS = . CHGIN Adaptive Voltage Regulation Threshold Accuracy, MIN = 4.4. CHGIN Adaptive Voltage Regulation Threshold Accuracy, TYP = 4.5. CHGIN Adaptive Voltage Regulation Threshold Accuracy, MAX = 4.6. CHGIN Adaptive Voltage Regulation Threshold Accuracy, UNITS = V. CHGIN Current Limit Range, SYMBOL = CHGIN_ILIM. CHGIN Current Limit Range, CONDITIONS = Automatically configured after charger- type detection.. CHGIN Current Limit Range, MIN = 0.5. CHGIN Current Limit Range, TYP = . CHGIN Current Limit Range, MAX = 3.0. CHGIN Current Limit Range, UNITS = A. CHGIN Supply Current, SYMBOL = I IN. CHGIN Supply Current, CONDITIONS = V CHGIN = 5.0V, Charger enabled, V SYS = V BATT = 4.5V, (No switching, battery charged). CHGIN Supply Current, MIN = . CHGIN Supply Current, TYP = 2.7. CHGIN Supply Current, MAX = 4. CHGIN Supply Current, UNITS = mA. VCHGIN Input Current Limit, SYMBOL = I INLIMIT. VCHGIN Input Current Limit, CONDITIONS = Charger enabled, 500mA input current setting, T A = +25\u00b0C. VCHGIN Input Current Limit, MIN = 423. VCHGIN Input Current Limit, TYP ="
+    },
+    {
+      "chunk_index": 11,
+      "page_number": 5.0,
+      "page_numbers": [
+        "5"
+      ],
+      "section_heading": "Electrical Characteristics",
+      "text": "Electrical Characteristics\n\n 460. VCHGIN Input Current Limit, MAX = 500. VCHGIN Input Current Limit, UNITS = mA. VCHGIN Input Current Limit, SYMBOL = I INLIMIT. VCHGIN Input Current Limit, CONDITIONS = Charger enabled, 1500mA input current setting, T A = +25\u00b0C. VCHGIN Input Current Limit, MIN = 1300. VCHGIN Input Current Limit, TYP = 1400. VCHGIN Input Current Limit, MAX = 1500. VCHGIN Input Current Limit, UNITS = mA. VCHGIN Input Current Limit, SYMBOL = I INLIMIT. VCHGIN Input Current Limit, CONDITIONS = Charger enabled, 3000mA input current setting, T A = +25\u00b0C. VCHGIN Input Current Limit, MIN = 2600. VCHGIN Input Current Limit, TYP = 2800. VCHGIN Input Current Limit, MAX = 3000. VCHGIN Input Current Limit, UNITS = mA. CHGIN Self-Discharge Down to UVLO Time, SYMBOL = t INSD. CHGIN Self-Discharge Down to UVLO Time, CONDITIONS = Time required for the charger input to cause CHGIN capacitor to decay from 6.0V to 4.3V. CHGIN Self-Discharge Down to UVLO Time, MIN = . CHGIN Self-Discharge Down to UVLO Time, TYP = 100. CHGIN Self-Discharge Down to UVLO Time, MAX = . CHGIN Self-Discharge Down to UVLO Time, UNITS = ms. CHGIN Input Self- Discharge Resistance, SYMBOL = R INSD. CHGIN Input Self- Discharge Resistance, CONDITIONS = . CHGIN Input Self- Discharge Resistance, MIN = . CHGIN Input Self- Discharge Resistance, TYP = 44. CHGIN Input Self- Discharge Resistance, MAX = . CHGIN Input Self- Discharge Resistance, UNITS = k\u03a9. CHGIN to BYP Resistance, SYMBOL = R CHGIN2BYP. CHGIN to BYP Resistance, CONDITIONS = Bidirectional. CHGIN to BYP Resistance, MIN = . CHGIN to BYP Resistance, TYP = 45. CHGIN to BYP Resistance, MAX = . CHGIN to BYP Resistance, UNITS = m\u03a9. LX High-Side Resistance, SYMBOL = R HS. LX High-Side Resistance, CONDITIONS = . LX High-Side Resistance, MIN = . LX High-Side Resistance, TYP = 60. LX High-Side Resistance,"
+    },
+    {
+      "chunk_index": 12,
+      "page_number": 5.0,
+      "page_numbers": [
+        "5",
+        "6"
+      ],
+      "section_heading": "Electrical Characteristics",
+      "text": "Electrical Characteristics\n MAX = . LX High-Side Resistance, UNITS = m\u03a9. LX Low-Side Resistance, SYMBOL = R LS. LX Low-Side Resistance, CONDITIONS = . LX Low-Side Resistance, MIN = . LX Low-Side Resistance, TYP = 60. LX Low-Side Resistance, MAX = . LX Low-Side Resistance, UNITS = m\u03a9. BATT to SYS Dropout Resistance, SYMBOL = R BAT2SYS. BATT to SYS Dropout Resistance, CONDITIONS = . BATT to SYS Dropout Resistance, MIN = . BATT to SYS Dropout Resistance, TYP = 20. BATT to SYS Dropout Resistance, MAX = . BATT to SYS Dropout Resistance, UNITS = m\u03a9. CHGIN to BATT Dropout Resistance, SYMBOL = R CHGIN2BAT. CHGIN to BATT Dropout Resistance, CONDITIONS = Calculation estimates a 0.04\u03a9 inductor resistance (R L ). R CHGIN2BAT = R CHGIN2BYP + R HS + R L + R BAT2SYS. CHGIN to BATT Dropout Resistance, MIN = . CHGIN to BATT Dropout Resistance, TYP = 165. CHGIN to BATT Dropout Resistance, MAX = . CHGIN to BATT Dropout Resistance, UNITS = m\u03a9. LX Leakage Current, SYMBOL = . LX Leakage Current, CONDITIONS = LX = PGND or BYP, T A = +25\u00b0C. LX Leakage Current, MIN = . LX Leakage Current, TYP = 0.01. LX Leakage Current, MAX = 10. LX Leakage Current, UNITS = \u00b5A\n(Limits are 100% tested at T A  = +25\u00b0C. Limits over the operating temperature range and relevant supply voltage range are guaranteed by design and characterization.)"
+    },
+    {
+      "chunk_index": 13,
+      "page_number": 6.0,
+      "page_numbers": [
+        "6"
+      ],
+      "section_heading": "Electrical Characteristics",
+      "text": "Electrical Characteristics\n\n, SYMBOL = . , CONDITIONS = LX = PGND or BYP, T A = +85\u00b0C. , MIN = . , TYP = 1. , MAX = . , UNITS = . BST Leakage Current, SYMBOL = . BST Leakage Current, CONDITIONS = BST = PGND or 1.8V, T A = +25\u00b0C. BST Leakage Current, MIN = . BST Leakage Current, TYP = 0.01. BST Leakage Current, MAX = 10. BST Leakage Current, UNITS = \u00b5A. , SYMBOL = . , CONDITIONS = BST = PGND or 1.8V, T A = +85\u00b0C. , MIN = . , TYP = 1. , MAX = . , UNITS = \u00b5A. BYP Leakage Current, SYMBOL = . BYP Leakage Current, CONDITIONS = V BYP = 5V, V CHGIN = 0V, LX = 0V, charger disabled, T A = +25\u00b0C. BYP Leakage Current, MIN = . BYP Leakage Current, TYP = 0.01. BYP Leakage Current, MAX = 10. BYP Leakage Current, UNITS = \u00b5A. , SYMBOL = . , CONDITIONS = V BYP = 5V, V CHGIN = 0V, LX = 0V, charger disabled, T A = +85\u00b0C. , MIN = . , TYP = 1. , MAX = . , UNITS = \u00b5A. SYS Leakage Current, SYMBOL = . SYS Leakage Current, CONDITIONS = V SYS = 0V, V BATT = 4.2V, charger disabled, T A = +25\u00b0C. SYS Leakage Current, MIN = . SYS Leakage Current, TYP = 0.01. SYS Leakage Current, MAX = 10. SYS Leakage Current, UNITS = \u00b5A. SYS Leakage Current, SYMBOL = . SYS Leakage Current, CONDITIONS = V SYS = 0V, V BATT = 4.2V, charger disabled, T A = +85\u00b0C. SYS Leakage Current, MIN = . SYS Leakage Current, TYP = 1. SYS Leakage Current, MAX = . SYS Leakage Current, UNITS = \u00b5A. Minimum ON Time, SYMBOL = t ON-MIN. Minimum ON Time, CONDITIONS = . Minimum ON"
+    },
+    {
+      "chunk_index": 14,
+      "page_number": 6.0,
+      "page_numbers": [
+        "6"
+      ],
+      "section_heading": "Electrical Characteristics",
+      "text": "Electrical Characteristics\n\n Time, MIN = . Minimum ON Time, TYP = 75. Minimum ON Time, MAX = . Minimum ON Time, UNITS = ns. Minimum OFF Time, SYMBOL = t OFF-MIN. Minimum OFF Time, CONDITIONS = . Minimum OFF Time, MIN = . Minimum OFF Time, TYP = 75. Minimum OFF Time, MAX = . Minimum OFF Time, UNITS = ns. Buck Current Limit, SYMBOL = I LIM. Buck Current Limit, CONDITIONS = . Buck Current Limit, MIN = 5.16. Buck Current Limit, TYP = 6.0. Buck Current Limit, MAX = 6.84. Buck Current Limit, UNITS = A. Reverse Boost Quiescent Current, SYMBOL = . Reverse Boost Quiescent Current, CONDITIONS = Non-switching: output forced 200mV above its target regulation voltage. Reverse Boost Quiescent Current, MIN = . Reverse Boost Quiescent Current, TYP = 2000. Reverse Boost Quiescent Current, MAX = . Reverse Boost Quiescent Current, UNITS = \u00b5A. Reverse Boost BYP Voltage in OTG Mode, SYMBOL = V BYP.OTG. Reverse Boost BYP Voltage in OTG Mode, CONDITIONS = . Reverse Boost BYP Voltage in OTG Mode, MIN = 4.94. Reverse Boost BYP Voltage in OTG Mode, TYP = 5.1. Reverse Boost BYP Voltage in OTG Mode, MAX = 5.26. Reverse Boost BYP Voltage in OTG Mode, UNITS = V. CHGIN Output Current Limit, SYMBOL = I CHGIN.OTG.LI M. CHGIN Output Current Limit, CONDITIONS = 3.4V < V BATT < 4.5V, T A = +25\u00b0C. CHGIN Output Current Limit, MIN = 1500. CHGIN Output Current Limit, TYP = . CHGIN Output Current Limit, MAX = 1725. CHGIN Output Current Limit, UNITS = mA. Reverse Boost Output Voltage Ripple, SYMBOL = . Reverse Boost Output Voltage Ripple, CONDITIONS = Discontinuous inductor current (i.e., skip mode). Reverse Boost Output Voltage Ripple, MIN = . Reverse Boost Output Voltage Ripple, TYP = \u00b1150. Reverse Boost Output Voltage Ripple, MAX = . Reverse Boost Output Voltage Ripple, UNITS = mV. Reverse Boost Output Voltage Ripple, SYMBOL = . Reverse Boost Output Voltage Ripple, CONDITIONS = Continuous inductor current. Reverse Boost Output Voltage Ripple, MIN = . Reverse Boost Output Voltage Ripple, TYP ="
+    },
+    {
+      "chunk_index": 15,
+      "page_number": 6.0,
+      "page_numbers": [
+        "6"
+      ],
+      "section_heading": "Electrical Characteristics",
+      "text": "Electrical Characteristics\n\n \u00b1150. Reverse Boost Output Voltage Ripple, MAX = . Reverse Boost Output Voltage Ripple, UNITS = . BATT Regulation Voltage Accuracy, SYMBOL = . BATT Regulation Voltage Accuracy, CONDITIONS = T A = +25\u00b0C, BATT regulation voltage (See the Ordering Information table). BATT Regulation Voltage Accuracy, MIN = -0.9. BATT Regulation Voltage Accuracy, TYP = -0.3. BATT Regulation Voltage Accuracy, MAX = +0.3. BATT Regulation Voltage Accuracy, UNITS = %. BATT Regulation Voltage Accuracy, SYMBOL = . BATT Regulation Voltage Accuracy, CONDITIONS = T A = 0\u00b0C to +85\u00b0C, BATT regulation voltage (See the Ordering Information table). BATT Regulation Voltage Accuracy, MIN = -1. BATT Regulation Voltage Accuracy, TYP = -0.3. BATT Regulation Voltage Accuracy, MAX = +0.5. BATT Regulation Voltage Accuracy, UNITS = %. Fast-Charge Current Program Range, SYMBOL = . Fast-Charge Current Program Range, CONDITIONS = External resistor programmable. Fast-Charge Current Program Range, MIN = 0.5. Fast-Charge Current Program Range, TYP = . Fast-Charge Current Program Range, MAX = 3.15. Fast-Charge Current Program Range, UNITS = A. Fast-Charge Currents, SYMBOL = I FC. Fast-Charge Currents, CONDITIONS = T A = +25\u00b0C, V BATT > V SYSMIN , programmed for 3.0A. Fast-Charge Currents, MIN = 2850. Fast-Charge Currents, TYP = 3000. Fast-Charge Currents, MAX = 3150. Fast-Charge Currents, UNITS = mA. Fast-Charge Currents, SYMBOL = I FC. Fast-Charge Currents, CONDITIONS = T A = +25\u00b0C, V BATT > V SYSMIN , programmed for 2.0A. Fast-Charge Currents, MIN = 1900. Fast-Charge Currents, TYP = 2000. Fast-Charge Currents, MAX = 2100. Fast-Charge Currents, UNITS = mA. Fast-Charge Currents, SYMBOL = I FC. Fast-Charge Currents, CONDITIONS = T A = +25\u00b0C, V BATT > V SYSMIN , programmed for 0.5A. Fast-Charge Currents, MIN = 465. Fast-Charge Currents, TYP = 500. Fast-Charge Currents, MAX = 535. Fast-Charge Currents, UNITS = mA. Trickle Charge"
+    },
+    {
+      "chunk_index": 16,
+      "page_number": 6.0,
+      "page_numbers": [
+        "6"
+      ],
+      "section_heading": "Electrical Characteristics",
+      "text": "Electrical Characteristics\n Threshold, SYMBOL = V TRICKLE. Trickle Charge Threshold, CONDITIONS = V BATT rising. Trickle Charge Threshold, MIN = 3.0. Trickle Charge Threshold, TYP = 3.1. Trickle Charge Threshold, MAX = 3.2. Trickle Charge Threshold, UNITS = V. Precharge Threshold, SYMBOL = V PRECHG. Precharge Threshold, CONDITIONS = V BATT rising. Precharge Threshold, MIN = 2.4. Precharge Threshold, TYP = 2.5. Precharge Threshold, MAX = 2.6. Precharge Threshold, UNITS = V. Prequalification Threshold Hysteresis, SYMBOL = V PQ-H. Prequalification Threshold Hysteresis, CONDITIONS = Applies to both V TRICKLE and V PRECHG. Prequalification Threshold Hysteresis, MIN = . Prequalification Threshold Hysteresis, TYP = 100. Prequalification Threshold Hysteresis, MAX = . Prequalification Threshold Hysteresis, UNITS = mV. Trickle Charge Current, SYMBOL = I TRICKLE. Trickle Charge Current, CONDITIONS = . Trickle Charge Current, MIN = 270. Trickle Charge Current, TYP = 300. Trickle Charge Current, MAX = 330. Trickle Charge Current, UNITS = mA. Precharge Charge Current, SYMBOL = I PRECHG. Precharge Charge Current, CONDITIONS = . Precharge Charge Current, MIN = 40. Precharge Charge Current, TYP = 55. Precharge Charge Current, MAX = 80. Precharge Charge Current, UNITS = mA. Charger Restart Threshold, SYMBOL = V RSTRT. Charger Restart Threshold, CONDITIONS = . Charger Restart Threshold, MIN = 50. Charger Restart Threshold, TYP = 100. Charger Restart Threshold, MAX = 150. Charger Restart Threshold, UNITS = mV"
+    },
+    {
+      "chunk_index": 17,
+      "page_number": 7.0,
+      "page_numbers": [
+        "7"
+      ],
+      "section_heading": "MAX77751",
+      "text": "MAX77751\n(Limits are 100% tested at T A  = +25\u00b0C. Limits over the operating temperature range and relevant supply voltage range are guaranteed by design and characterization.)"
+    },
+    {
+      "chunk_index": 18,
+      "page_number": 7.0,
+      "page_numbers": [
+        "7"
+      ],
+      "section_heading": "MAX77751",
+      "text": "MAX77751\n\nCharger Restart Deglitch Time, SYMBOL = . Charger Restart Deglitch Time, CONDITIONS = 10mV overdrive, 100ns rise time. Charger Restart Deglitch Time, MIN = . Charger Restart Deglitch Time, TYP = 130. Charger Restart Deglitch Time, MAX = . Charger Restart Deglitch Time, UNITS = ms. Charger Enable Threshold, SYMBOL = V CHGR_EN. Charger Enable Threshold, CONDITIONS = . Charger Enable Threshold, MIN = 295.2. Charger Enable Threshold, TYP = 367.7. Charger Enable Threshold, MAX = 439.7. Charger Enable Threshold, UNITS = mV. Top-Off Current Program Range, SYMBOL = I TO. Top-Off Current Program Range, CONDITIONS = Resistor programmable from 100mA to 350mA. Top-Off Current Program Range, MIN = 100. Top-Off Current Program Range, TYP = . Top-Off Current Program Range, MAX = 350. Top-Off Current Program Range, UNITS = mA. Top-Off Current, SYMBOL = . Top-Off Current, CONDITIONS = Gain. Top-Off Current, MIN = . Top-Off Current, TYP = . Top-Off Current, MAX = 5. Top-Off Current, UNITS = %. Accuracy, SYMBOL = . Accuracy, CONDITIONS = Offset. Accuracy, MIN = . Accuracy, TYP = . Accuracy, MAX = 20. Accuracy, UNITS = mA. Charge Termination Deglitch Time, SYMBOL = t TERM. Charge Termination Deglitch Time, CONDITIONS = 2mV overdrive, 100ns rise/fall time. Charge Termination Deglitch Time, MIN = . Charge Termination Deglitch Time, TYP = 30. Charge Termination Deglitch Time, MAX = . Charge Termination Deglitch Time, UNITS = ms. Charger Soft Start Time, SYMBOL = t SS. Charger Soft Start Time, CONDITIONS = . Charger Soft Start Time, MIN = . Charger Soft Start Time, TYP = 1.5. Charger Soft Start Time, MAX = . Charger Soft Start Time, UNITS = ms. BATT to SYS Reverse, SYMBOL = . BATT to SYS Reverse, CONDITIONS = I BATT = 10mA. BATT to SYS Reverse, MIN = . BATT to SYS Reverse, TYP = 70. BATT to SYS Reverse, MAX = . BATT to SYS Reverse, UNITS ="
+    },
+    {
+      "chunk_index": 19,
+      "page_number": 7.0,
+      "page_numbers": [
+        "7"
+      ],
+      "section_heading": "MAX77751",
+      "text": "MAX77751\n\n mV. Regulation Voltage, SYMBOL = V BSREG. Regulation Voltage, CONDITIONS = Load regulation during the reverse regulation mode. Regulation Voltage, MIN = . Regulation Voltage, TYP = 1. Regulation Voltage, MAX = . Regulation Voltage, UNITS = mV/A. Minimum SYS Voltage, SYMBOL = V SYSMIN. Minimum SYS Voltage, CONDITIONS = . Minimum SYS Voltage, MIN = . Minimum SYS Voltage, TYP = 3.5. Minimum SYS Voltage, MAX = . Minimum SYS Voltage, UNITS = V. Minimum SYS Voltage Accuracy, SYMBOL = V SYSMIN. Minimum SYS Voltage Accuracy, CONDITIONS = . Minimum SYS Voltage Accuracy, MIN = -3. Minimum SYS Voltage Accuracy, TYP = . Minimum SYS Voltage Accuracy, MAX = +3. Minimum SYS Voltage Accuracy, UNITS = %. Prequalification Time, SYMBOL = t PQ. Prequalification Time, CONDITIONS = Applies to both low-battery precharge and trickle modes. Prequalification Time, MIN = . Prequalification Time, TYP = 30. Prequalification Time, MAX = . Prequalification Time, UNITS = min. Fast-Charge Constant Current Plus Fast- Charge Constant Voltage Time, SYMBOL = t FC. Fast-Charge Constant Current Plus Fast- Charge Constant Voltage Time, CONDITIONS = . Fast-Charge Constant Current Plus Fast- Charge Constant Voltage Time, MIN = . Fast-Charge Constant Current Plus Fast- Charge Constant Voltage Time, TYP = 6. Fast-Charge Constant Current Plus Fast- Charge Constant Voltage Time, MAX = . Fast-Charge Constant Current Plus Fast- Charge Constant Voltage Time, UNITS = hours. Top-Off Time, SYMBOL = t TO. Top-Off Time, CONDITIONS = . Top-Off Time, MIN = . Top-Off Time, TYP = 30. Top-Off Time, MAX = . Top-Off Time, UNITS = s. Timer Accuracy, SYMBOL = . Timer Accuracy, CONDITIONS = . Timer Accuracy, MIN = -20. Timer Accuracy, TYP = . Timer Accuracy, MAX = +20. Timer Accuracy, UNITS = %. Junction Temperature Thermal Regulation Loop Setpoint Program Range, SYMBOL = T REG. Junction Temperature Thermal Regulation Loop Setpoint Program Range, CONDITIONS = Junction temperature when charge current is reduced. Junction Temperature Thermal Regulation Loop Setpoint Program Range, MIN = . Junction Temperature Thermal Regulation Loop Setpoint Program Range, TYP = 130. Junction Temperature Thermal Regulation Loop Setpoint Program Range, MAX ="
+    },
+    {
+      "chunk_index": 20,
+      "page_number": 7.0,
+      "page_numbers": [
+        "7"
+      ],
+      "section_heading": "MAX77751",
+      "text": "MAX77751\n\n . Junction Temperature Thermal Regulation Loop Setpoint Program Range, UNITS = \u00b0C. Thermal Regulation Gain, SYMBOL = AT JREG. Thermal Regulation Gain, CONDITIONS = I FC = 3.15A. Thermal Regulation Gain, MIN = . Thermal Regulation Gain, TYP = -157.5. Thermal Regulation Gain, MAX = . Thermal Regulation Gain, UNITS = mA/\u00b0C. Battery Overcurrent Threshold, SYMBOL = I BOVCR. Battery Overcurrent Threshold, CONDITIONS = . Battery Overcurrent Threshold, MIN = . Battery Overcurrent Threshold, TYP = 6.0. Battery Overcurrent Threshold, MAX = . Battery Overcurrent Threshold, UNITS = A. Battery Overcurrent Debounce Time, SYMBOL = t BOVRC. Battery Overcurrent Debounce Time, CONDITIONS = . Battery Overcurrent Debounce Time, MIN = 6. Battery Overcurrent Debounce Time, TYP = . Battery Overcurrent Debounce Time, MAX = . Battery Overcurrent Debounce Time, UNITS = ms. Battery Overcurrent Retry, SYMBOL = t OCP_RETRY. Battery Overcurrent Retry, CONDITIONS = . Battery Overcurrent Retry, MIN = . Battery Overcurrent Retry, TYP = 0.15. Battery Overcurrent Retry, MAX = . Battery Overcurrent Retry, UNITS = sec. Battery Overcurrent Protection Quiescent Current, SYMBOL = I BOVRC. Battery Overcurrent Protection Quiescent Current, CONDITIONS = . Battery Overcurrent Protection Quiescent Current, MIN = . Battery Overcurrent Protection Quiescent Current, TYP = 3 + I BATT / 18040. Battery Overcurrent Protection Quiescent Current, MAX = . Battery Overcurrent Protection Quiescent Current, UNITS = \u00b5A. System Power-Up Current, SYMBOL = I SYSPU. System Power-Up Current, CONDITIONS = . System Power-Up Current, MIN = 35. System Power-Up Current, TYP = 50. System Power-Up Current, MAX = 80. System Power-Up Current, UNITS = mA. System Power-Up Voltage, SYMBOL = V SYSPU. System Power-Up Voltage, CONDITIONS = V SYS rising, 100mV hysteresis. System Power-Up Voltage, MIN ="
+    },
+    {
+      "chunk_index": 21,
+      "page_number": 7.0,
+      "page_numbers": [
+        "7",
+        "8"
+      ],
+      "section_heading": "MAX77751",
+      "text": "MAX77751\n 1.9. System Power-Up Voltage, TYP = 2.0. System Power-Up Voltage, MAX = 2.1. System Power-Up Voltage, UNITS = V. INOKB, STAT, SYMBOL = . INOKB, STAT, CONDITIONS = . INOKB, STAT, MIN = . INOKB, STAT, TYP = . INOKB, STAT, MAX = . INOKB, STAT, UNITS = . Logic Input Leakage Current, SYMBOL = . Logic Input Leakage Current, CONDITIONS = . Logic Input Leakage Current, MIN = . Logic Input Leakage Current, TYP = 0.1. Logic Input Leakage Current, MAX = 1. Logic Input Leakage Current, UNITS = \u00b5A\n(Limits are 100% tested at T A  = +25\u00b0C. Limits over the operating temperature range and relevant supply voltage range are guaranteed by design and characterization.)"
+    },
+    {
+      "chunk_index": 22,
+      "page_number": 8.0,
+      "page_numbers": [
+        "8"
+      ],
+      "section_heading": "MAX77751",
+      "text": "MAX77751\n\nOutput Low Voltage INOKB, STAT, SYMBOL = . Output Low Voltage INOKB, STAT, CONDITIONS = I SOURCE = 5mA, T A = +25\u00b0C. Output Low Voltage INOKB, STAT, MIN = . Output Low Voltage INOKB, STAT, TYP = . Output Low Voltage INOKB, STAT, MAX = 0.4. Output Low Voltage INOKB, STAT, UNITS = V. Output High Leakage, SYMBOL = . Output High Leakage, CONDITIONS = V SYS = 5.5V, T A = +25\u00b0C. Output High Leakage, MIN = -1. Output High Leakage, TYP = 0. Output High Leakage, MAX = +1. Output High Leakage, UNITS = \u00b5A. INOKB, STAT, SYMBOL = . INOKB, STAT, CONDITIONS = V SYS = 5.5V, T A = +85\u00b0C. INOKB, STAT, MIN = . INOKB, STAT, TYP = 0.1. INOKB, STAT, MAX = . INOKB, STAT, UNITS = . ENBST, SYMBOL = . ENBST, CONDITIONS = . ENBST, MIN = . ENBST, TYP = . ENBST, MAX = . ENBST, UNITS = . ENBST Logic Input Low Threshold, SYMBOL = V IL. ENBST Logic Input Low Threshold, CONDITIONS = . ENBST Logic Input Low Threshold, MIN = . ENBST Logic Input Low Threshold, TYP = . ENBST Logic Input Low Threshold, MAX = 0.4. ENBST Logic Input Low Threshold, UNITS = V. ENBST Logic Input High Threshold, SYMBOL = V IH. ENBST Logic Input High Threshold, CONDITIONS = . ENBST Logic Input High Threshold, MIN = 1.4. ENBST Logic Input High Threshold, TYP = . ENBST Logic Input High Threshold, MAX = . ENBST Logic Input High Threshold, UNITS = V. ENBST Logic Input Leakage Current, SYMBOL = I ENBST. ENBST Logic Input Leakage Current, CONDITIONS = ENBST = 5.5V (including current through pulldown resistor). ENBST Logic Input Leakage Current, MIN = . ENBST Logic Input Leakage Current, TYP = 24. ENBST Logic Input Leakage Current, MAX = 60."
+    },
+    {
+      "chunk_index": 23,
+      "page_number": 8.0,
+      "page_numbers": [
+        "8"
+      ],
+      "section_heading": "MAX77751",
+      "text": "MAX77751\n\n ENBST Logic Input Leakage Current, UNITS = \u00b5A. ENBST Pulldown Resistor, SYMBOL = R ENBST. ENBST Pulldown Resistor, CONDITIONS = . ENBST Pulldown Resistor, MIN = . ENBST Pulldown Resistor, TYP = 235. ENBST Pulldown Resistor, MAX = . ENBST Pulldown Resistor, UNITS = k\u2126. CHARGER DETECTION, SYMBOL = CHARGER DETECTION. CHARGER DETECTION, CONDITIONS = . CHARGER DETECTION, MIN = . CHARGER DETECTION, TYP = . CHARGER DETECTION, MAX = . CHARGER DETECTION, UNITS = . BC1.2 State Timeout, SYMBOL = t TMO. BC1.2 State Timeout, CONDITIONS = . BC1.2 State Timeout, MIN = 180. BC1.2 State Timeout, TYP = 200. BC1.2 State Timeout, MAX = 220. BC1.2 State Timeout, UNITS = ms. Data Contact Detect Timeout, SYMBOL = t DCDtmo. Data Contact Detect Timeout, CONDITIONS = . Data Contact Detect Timeout, MIN = 700. Data Contact Detect Timeout, TYP = 800. Data Contact Detect Timeout, MAX = 900. Data Contact Detect Timeout, UNITS = ms. Proprietary Charger Debounce, SYMBOL = t PRDeb. Proprietary Charger Debounce, CONDITIONS = . Proprietary Charger Debounce, MIN = 5. Proprietary Charger Debounce, TYP = 7.5. Proprietary Charger Debounce, MAX = 10. Proprietary Charger Debounce, UNITS = ms. Primary-to-Secondary Timer, SYMBOL = t PDSDWait. Primary-to-Secondary Timer, CONDITIONS = . Primary-to-Secondary Timer, MIN = 27. Primary-to-Secondary Timer, TYP = 35. Primary-to-Secondary Timer, MAX = 39. Primary-to-Secondary Timer, UNITS = ms. Charger Detection Debounce, SYMBOL = t CDDeb. Charger Detection Debounce, CONDITIONS = . Charger Detection Debounce, MIN = 45. Charger Detection Debounce, TYP = 50. Charger Detection Debounce, MAX = 55. Charger Detection Debounce, UNITS = ms. VBUS64 Threshold, SYMBOL = V BUS64. VBUS64 Threshold, CONDITIONS = DP and DN pins. Threshold in percent of V BUS"
+    },
+    {
+      "chunk_index": 24,
+      "page_number": 8.0,
+      "page_numbers": [
+        "8"
+      ],
+      "section_heading": "MAX77751",
+      "text": "MAX77751\n\n voltage. 3V < V BUS < 5.5V. VBUS64 Threshold, MIN = 57. VBUS64 Threshold, TYP = 64. VBUS64 Threshold, MAX = 71. VBUS64 Threshold, UNITS = %. VBUS64 Hysteresis, SYMBOL = V BUS64_H. VBUS64 Hysteresis, CONDITIONS = . VBUS64 Hysteresis, MIN = . VBUS64 Hysteresis, TYP = 0.015. VBUS64 Hysteresis, MAX = . VBUS64 Hysteresis, UNITS = V. VBUS47 Threshold, SYMBOL = V BUS47. VBUS47 Threshold, CONDITIONS = DP and DN pins. Threshold in percent of V BUS voltage. 3V < V BUS < 5.5V. VBUS47 Threshold, MIN = 43.3. VBUS47 Threshold, TYP = 47. VBUS47 Threshold, MAX = 51.7. VBUS47 Threshold, UNITS = %. VBUS47 Hysteresis, SYMBOL = . VBUS47 Hysteresis, CONDITIONS = . VBUS47 Hysteresis, MIN = . VBUS47 Hysteresis, TYP = 0.015. VBUS47 Hysteresis, MAX = . VBUS47 Hysteresis, UNITS = V. VBUS31 Threshold, SYMBOL = V BUS31. VBUS31 Threshold, CONDITIONS = DP and DN pins. Threshold in percent of V BUS voltage. 3V < V BUS < 5.5V. VBUS31 Threshold, MIN = 26. VBUS31 Threshold, TYP = 31. VBUS31 Threshold, MAX = 36. VBUS31 Threshold, UNITS = %. VBUS31 Hysteresis, SYMBOL = . VBUS31 Hysteresis, CONDITIONS = . VBUS31 Hysteresis, MIN = . VBUS31 Hysteresis, TYP = 0.015. VBUS31 Hysteresis, MAX = . VBUS31 Hysteresis, UNITS = V. IWEAK Current, SYMBOL = I WEAK. IWEAK Current, CONDITIONS = . IWEAK Current, MIN = 0.01. IWEAK Current, TYP = 0.1. IWEAK Current, MAX = 0.5. IWEAK Current, UNITS = \u00b5A. RDM_DWN Resistor, SYMBOL = R"
+    },
+    {
+      "chunk_index": 25,
+      "page_number": 8.0,
+      "page_numbers": [
+        "8"
+      ],
+      "section_heading": "MAX77751",
+      "text": "MAX77751\n\n DM_DWN. RDM_DWN Resistor, CONDITIONS = . RDM_DWN Resistor, MIN = 14.25. RDM_DWN Resistor, TYP = 20. RDM_DWN Resistor, MAX = 24.8. RDM_DWN Resistor, UNITS = k\u03a9. IDP_SRC Current, SYMBOL = I DP_SRC /I DCD. IDP_SRC Current, CONDITIONS = Accurate over 0V to 2.5V. IDP_SRC Current, MIN = 7. IDP_SRC Current, TYP = 10. IDP_SRC Current, MAX = 13. IDP_SRC Current, UNITS = \u00b5A. IDM_SINK Current, SYMBOL = I DM_SINK /I DAT SINK. IDM_SINK Current, CONDITIONS = Accurate over 0.15V to 3.6V. IDM_SINK Current, MIN = 45. IDM_SINK Current, TYP = 80. IDM_SINK Current, MAX = 125. IDM_SINK Current, UNITS = \u00b5A. VLGC Threshold, SYMBOL = V LGC. VLGC Threshold, CONDITIONS = . VLGC Threshold, MIN = 1.62. VLGC Threshold, TYP = 1.7. VLGC Threshold, MAX = 1.9. VLGC Threshold, UNITS = V. VLGC Hysteresis, SYMBOL = V LGC_H. VLGC Hysteresis, CONDITIONS = . VLGC Hysteresis, MIN = . VLGC Hysteresis, TYP = 0.015. VLGC Hysteresis, MAX = . VLGC Hysteresis, UNITS = V. VDAT_REF Threshold, SYMBOL = V DAT_REF. VDAT_REF Threshold, CONDITIONS = . VDAT_REF Threshold, MIN = 0.25. VDAT_REF Threshold, TYP = 0.32. VDAT_REF Threshold, MAX = 0.4. VDAT_REF Threshold, UNITS = V. VDAT_REF Hysteresis, SYMBOL = V DAT_REF_H. VDAT_REF Hysteresis, CONDITIONS = . VDAT_REF Hysteresis, MIN = . VDAT_REF Hysteresis, TYP ="
+    },
+    {
+      "chunk_index": 26,
+      "page_number": 8.0,
+      "page_numbers": [
+        "8",
+        "9"
+      ],
+      "section_heading": "MAX77751",
+      "text": "MAX77751\n 0.015. VDAT_REF Hysteresis, MAX = . VDAT_REF Hysteresis, UNITS = V. VDN_SRC Voltage, SYMBOL = V DN_SRC /V SR C06. VDN_SRC Voltage, CONDITIONS = Accurate over I LOAD = 0 to 200\u00b5A. VDN_SRC Voltage, MIN = 0.5. VDN_SRC Voltage, TYP = 0.6. VDN_SRC Voltage, MAX = 0.7. VDN_SRC Voltage, UNITS = V. VDP_SRC Voltage, SYMBOL = V DP_SRC /V SR C06. VDP_SRC Voltage, CONDITIONS = Accurate over I LOAD = 0 to 200\u00b5A. VDP_SRC Voltage, MIN = 0.5. VDP_SRC Voltage, TYP = 0.6. VDP_SRC Voltage, MAX = 0.7. VDP_SRC Voltage, UNITS = V\n(Limits are 100% tested at T A  = +25\u00b0C. Limits over the operating temperature range and relevant supply voltage range are guaranteed by design and characterization.)"
+    },
+    {
+      "chunk_index": 27,
+      "page_number": 9.0,
+      "page_numbers": [
+        "9"
+      ],
+      "section_heading": "MAX77751",
+      "text": "MAX77751\n\nCOMP2 Load Resistor, SYMBOL = R USB. COMP2 Load Resistor, CONDITIONS = Load Resistor on DP/DN. COMP2 Load Resistor, MIN = 3. COMP2 Load Resistor, TYP = 6.1. COMP2 Load Resistor, MAX = 12. COMP2 Load Resistor, UNITS = M\u03a9. CC DETECTION, SYMBOL = CC DETECTION. CC DETECTION, CONDITIONS = CC DETECTION. CC DETECTION, MIN = CC DETECTION. CC DETECTION, TYP = CC DETECTION. CC DETECTION, MAX = CC DETECTION. CC DETECTION, UNITS = CC DETECTION. CC Pin Voltage, in DFP 1.5A Mode, SYMBOL = V CC_PIN. CC Pin Voltage, in DFP 1.5A Mode, CONDITIONS = Measured at CC pins with 126k\u03a9 load. IDFP1.5_CC enable and V AVL \u2265 2.5V. CC Pin Voltage, in DFP 1.5A Mode, MIN = 1.85. CC Pin Voltage, in DFP 1.5A Mode, TYP = . CC Pin Voltage, in DFP 1.5A Mode, MAX = . CC Pin Voltage, in DFP 1.5A Mode, UNITS = V. CC Pin Clamp Voltage, SYMBOL = V CC_CLAMP. CC Pin Clamp Voltage, CONDITIONS = 60\u00b5A \u2264 I CC_ \u2264 600\u00b5A. CC Pin Clamp Voltage, MIN = . CC Pin Clamp Voltage, TYP = 1.1. CC Pin Clamp Voltage, MAX = 1.32. CC Pin Clamp Voltage, UNITS = V. CC Pin Clamp Voltage (5.5V), SYMBOL = . CC Pin Clamp Voltage (5.5V), CONDITIONS = I CC_ < 2mA. CC Pin Clamp Voltage (5.5V), MIN = . CC Pin Clamp Voltage (5.5V), TYP = 5.25. CC Pin Clamp Voltage (5.5V), MAX = 5.5. CC Pin Clamp Voltage (5.5V), UNITS = V. CC UFP Pulldown Resistance, SYMBOL = R PD_UFP. CC UFP Pulldown Resistance, CONDITIONS = . CC UFP Pulldown Resistance, MIN = -10%. CC UFP Pulldown Resistance, TYP = 5.1K. CC UFP Pulldown Resistance, MAX = +10%. CC UFP"
+    },
+    {
+      "chunk_index": 28,
+      "page_number": 9.0,
+      "page_numbers": [
+        "9"
+      ],
+      "section_heading": "MAX77751",
+      "text": "MAX77751\n\n Pulldown Resistance, UNITS = \u03a9. CC DFP 1.5A Current Source, SYMBOL = I DFP1.5_CC. CC DFP 1.5A Current Source, CONDITIONS = . CC DFP 1.5A Current Source, MIN = -8%. CC DFP 1.5A Current Source, TYP = 180. CC DFP 1.5A Current Source, MAX = +8%. CC DFP 1.5A Current Source, UNITS = \u00b5A. CC RA RD Threshold, SYMBOL = V RA_RD0.5. CC RA RD Threshold, CONDITIONS = . CC RA RD Threshold, MIN = 0.15. CC RA RD Threshold, TYP = 0.2. CC RA RD Threshold, MAX = 0.25. CC RA RD Threshold, UNITS = V. CC UFP 0.5A RD Threshold, SYMBOL = V UFP_RD0.5. CC UFP 0.5A RD Threshold, CONDITIONS = . CC UFP 0.5A RD Threshold, MIN = 0.61. CC UFP 0.5A RD Threshold, TYP = 0.66. CC UFP 0.5A RD Threshold, MAX = 0.7. CC UFP 0.5A RD Threshold, UNITS = V. CC UFP 0.5A RD Hysteresis, SYMBOL = V UFP_RD0.5_H. CC UFP 0.5A RD Hysteresis, CONDITIONS = . CC UFP 0.5A RD Hysteresis, MIN = . CC UFP 0.5A RD Hysteresis, TYP = 0.015. CC UFP 0.5A RD Hysteresis, MAX = . CC UFP 0.5A RD Hysteresis, UNITS = V. CC UFP 1.5A RD Threshold, SYMBOL = V UFP_RD1.5. CC UFP 1.5A RD Threshold, CONDITIONS = . CC UFP 1.5A RD Threshold, MIN = 1.16. CC UFP 1.5A RD Threshold, TYP = 1.23. CC UFP 1.5A RD Threshold, MAX = 1.31. CC UFP 1.5A RD Threshold, UNITS = V. CC UFP 1.5A RD Hysteresis, SYMBOL = V UFP_RD1.5_H. CC UFP 1.5A RD"
+    },
+    {
+      "chunk_index": 29,
+      "page_number": 9.0,
+      "page_numbers": [
+        "9"
+      ],
+      "section_heading": "MAX77751",
+      "text": "MAX77751\n Hysteresis, CONDITIONS = . CC UFP 1.5A RD Hysteresis, MIN = . CC UFP 1.5A RD Hysteresis, TYP = 0.15. CC UFP 1.5A RD Hysteresis, MAX = . CC UFP 1.5A RD Hysteresis, UNITS = V. CC Pin Power Up Time, SYMBOL = t ClampSwap. CC Pin Power Up Time, CONDITIONS = Max time allowed from removal of voltage clamp until 5.1k\u03a9 resistor is attached. CC Pin Power Up Time, MIN = . CC Pin Power Up Time, TYP = . CC Pin Power Up Time, MAX = 15. CC Pin Power Up Time, UNITS = ms. CC Detection Debounce, SYMBOL = t CCDeb. CC Detection Debounce, CONDITIONS = . CC Detection Debounce, MIN = 100. CC Detection Debounce, TYP = 119. CC Detection Debounce, MAX = 200. CC Detection Debounce, UNITS = ms. USB Type-C Debounce, SYMBOL = t PDDeb. USB Type-C Debounce, CONDITIONS = . USB Type-C Debounce, MIN = 10. USB Type-C Debounce, TYP = 15. USB Type-C Debounce, MAX = 20. USB Type-C Debounce, UNITS = ms. USB Type-C Quick Debounce, SYMBOL = t QDeb. USB Type-C Quick Debounce, CONDITIONS = . USB Type-C Quick Debounce, MIN = 0.9. USB Type-C Quick Debounce, TYP = 1. USB Type-C Quick Debounce, MAX = 1.1. USB Type-C Quick Debounce, UNITS = ms\nNote 1: The CHGIN input must be less than V CHGIN_OVLO  and greater than both V CHGIN_UVLO  and V CHGIN2SYS  for the charger to turn on."
+    },
+    {
+      "chunk_index": 30,
+      "page_number": 10.0,
+      "page_numbers": [
+        "10",
+        "12",
+        "13"
+      ],
+      "section_heading": "Typical Operating Characteristics",
+      "text": "Typical Operating Characteristics\n(V CHGIN  = 5V, V BATT  = 3.8V, T A  = +25\u00b0C, unless otherwise noted.)\nEFFICIENCY vs. BATTERY VOLTAGE 3.15A FAST CHARGE CURRENT\n4.5\nOTG EFFICIENCY (%)\nBOOST SWITCHING WAVEFORM OTG LOAD CURRENT = 1.5A\ntoc19\n100ms/div"
+    },
+    {
+      "chunk_index": 31,
+      "page_number": 15.0,
+      "page_numbers": [
+        "15"
+      ],
+      "section_heading": "Pin Descriptions",
+      "text": "Pin Descriptions\n1, NAME = BST. 1, FUNCTION = Provides Drive to High-Side Internal nMOS. Connect a 100nF/6.3V bootstrap capacitor between this pin and the LX node.. 2, NAME = INOKB. 2, FUNCTION = Charger Input Valid, Active Low Logic Output Flag. Open-drain output indicates when valid voltage is present at CHGIN.. 3, NAME = STAT. 3, FUNCTION = Open Drain Charge Status Indication Output. STAT toggles low and high impedance during charge. STAT becomes low when top-off threshold is detected and in done state. STAT becomes high impedance when charge faults occur.. 4, NAME = CC2. 4, FUNCTION = USB Type-C CC2 Connection. 5, NAME = CC1. 5, FUNCTION = USB Type-C CC1 Connection. 6, NAME = DP. 6, FUNCTION = Common Positive Output 1. Connect to D+ on USB Type-C or micro USB connector.. 7, NAME = DN. 7, FUNCTION = Common Negative Output 1. Connect to D- on USB Type-C or micro USB connector.. 8, NAME = ENBST. 8, FUNCTION = Active High Logic Input. Enable/Disable the Reverse Boost Converter. 9, NAME = GND. 9, FUNCTION = Analog Ground. Short to ground plane.. 10, NAME = V DD. 10, FUNCTION = Output of On-Chip LDO Used to Power On-Chip, Low-Noise Circuits. Bypass with a 2.2\u00b5F/10V ceramic capacitor to GND. Powering external loads from VDD is not recommended other than pullup resistors.. 11, NAME = ITOPOFF. 11, FUNCTION = Top Off Current Setting Pin. Connect a resistor (RTOPOFF) from ITOPOFF to GND to program the top- off current from 100mA to 350mA. Use 8.06k\u03a9 for 100mA top-off current. The pin is also used to enable or disable the charger. See the Application Information section.. 12, NAME = IFAST. 12, FUNCTION = Fast Charge Current Setting Pin. Connect a resistor (RIFAST) from IFAST to GND to program the fast charge current. Use 24.9k\u03a9 for 3.15A fast charge current. See the Application Information section."
+    },
+    {
+      "chunk_index": 32,
+      "page_number": 16.0,
+      "page_numbers": [
+        "16"
+      ],
+      "section_heading": "3.15A USB-C Autonomous Charger for 1-Cell Li+ Batteries",
+      "text": "3.15A USB-C Autonomous Charger for 1-Cell Li+ Batteries\n13, 14, 1 = BATT. 13, 14, 2 = Battery Power Connection. Connect to the positive terminal of a single-cell (or parallel cell) Li-ion battery. Bypass BATT to PGND ground plane with a 10\u00b5F ceramic capacitor.. 15, 16, 1 = SYS. 15, 16, 2 = System Power Node. Bypass SYS to PGND with a 2x10\u00b5F/10V ceramic capacitor.. 17, 1 = PVL. 17, 2 = Output of On-Chip LDO, Noisy Rail Due to Bootstrap Operation. Bypass with a 2.2\u00b5F/10V ceramic capacitor to PGND. Powering external loads from PVL is not recommended.. 18, 19, 1 = PGND. 18, 19, 2 = Power Ground. Connect the return of the buck output capacitor close to these pins.. 20, 21, 1 = LX. 20, 21, 2 = Switching Node. Connect an inductor between LX and SYS. When the buck converter is enabled, LX switches between BYP and PGND to control the input current, battery current, battery voltage, and die temperature.. 22, 1 = BYP. 22, 2 = System Power Connection. Output of OVP adapter input block and input to switching charger. Bypass with 22\u00b5F/16V ceramic capacitor from BYP to PGND.. 23, 24, 1 = CHGIN. 23, 24, 2 = Charger Input. Up to 13.7V operating, 16VDC withstand input pin connected to an adapter or USB power source. Connect a 2.2\u00b5F/16V ceramic capacitor from CHGIN to GND."
+    },
+    {
+      "chunk_index": 33,
+      "page_number": 17.0,
+      "page_numbers": [
+        "17"
+      ],
+      "section_heading": "Detailed Description",
+      "text": "Detailed Description\nThe MAX77751 is a highly integrated USB Type-C Charger with autonomous configuration. The MAX77751 can operate at an input range from 4.5V to 13.7V to support a 5V, 9V, and 12V AC adapter and USB input. It is capable of supplying a fast-charge current up to 3.15A and the maximum input current limit is 3.0A.\nThe MAX77751 can run BC1.2 and USB Type-C CC detection when USB input is plugged in and can configure the input source to the maximum power option and the charger input current limit to maximum power.\nThe fast-charge current and top-off current threshold can be programmed with an external resistor. The input voltage regulation  feature  with  adaptive  input  current  limit  (AICL)  allows  charging  to  continue  even  with  a  weak  adapter  by preventing it from collapsing or folding back.\nThe power path design provides system power even when the battery is fully discharged, and it supplements current from the battery and CHGIN input automatically when the system demands higher current.\nReverse boost from the battery can be enabled by the ENBST pin to allow 5.1V/1.5A OTG to V BUS ."
+    },
+    {
+      "chunk_index": 34,
+      "page_number": 17.0,
+      "page_numbers": [
+        "17",
+        "18",
+        "19"
+      ],
+      "section_heading": "Features",
+      "text": "Features\n- Complete Li-ion/Li-Polymer Switching Charger\n- Prequalification, Constant Current, Constant Voltage Charging\n- 55mA Precharge, 300mA Trickle Charge Current\n- 500mA to 3.15A Resistor-Adjustable Fast-Charge Current\n- 100mA to 350mA Resistor-Adjustable Charge Termination Threshold\n- 4.1V to 4.5V Battery Regulation Voltage (see the Ordering Information section)\n- Smart Power Selector\n- Optimally Distributes Power Between the Charge Adapter, System, and Battery\n- When Powered by a Charge Adapter, the Main Battery Can Provide Supplemental Current to the System\n- The Charge Adapter Can Support the System Without a Battery\n- 20m\u03a9 BATT to SYS Switch with up to 4.5A Continuous Discharge Capability\n- No External MOSFETs Required\n- 4.5V to 13.7V Input Operating Voltage\n- Reverse Leakage Protection Prevents the Battery Current Leaking to the Input\n- Automatic Detection of USB Type-C and BC1.2 Adapters\n- 500mA to 3A Automatic Input Current Limit Selection After USB Charger Type Detection\n-  Supports Non-USB Sources\n- 6-Hour Charge Safety Timer\n- Die Temperature Monitor with Thermal Foldback Loop (130\u00b0C Threshold)\n- Input Voltage Regulation Allows Operation from High-Impedance Sources (AICL)\n- Short Circuit Protection\n- BATT to SYS Overcurrent Threshold: 6A\n- SYS Short-to-Ground\nFigure 1. Simplified Functional Diagram\nFigure 2. Battery Charger Detailed Functional Diagram"
+    },
+    {
+      "chunk_index": 35,
+      "page_number": 19.0,
+      "page_numbers": [
+        "19",
+        "20"
+      ],
+      "section_heading": "Detailed Description",
+      "text": "Detailed Description\nThe MAX77751 includes a full-featured switch-mode charger for a one-cell lithium ion (Li+) or lithium polymer (Li-polymer) battery. As shown in Figure 2 , the current limit for the CHGIN input is automatically configured allowing the flexibility for connection to either an AC-to-DC wall charger or a USB port.\nThe synchronous switch-mode DC-DC converter utilizes a high 1.3MHz switching frequency, which is ideal for portable devices because it allows the use of small components while eliminating excessive heat generation. The DC-DC has both a buck and a boost mode of operation. When charging the battery, the converter operates as a buck. The DC-DC buck operates from a 4.3V to 13.7V source and delivers up to 3.15A to the battery. The battery charge current is programmable from 500mA to 3.15A with an external resistor.\nAs a boost converter, the DC-DC uses energy from the battery to boost the voltage at BYP. The boosted BYP voltage supplies the power to CHGIN as USB OTG voltage, which is fixed to 5.1V.\nMaxim's Smart Power Selector architecture makes the best use of the limited adapter power and the battery power at all times to supply up to the Buck Current Limit from the buck to the system (supplement mode also provides additional current from the battery to the system up to B2SOVRC). Adapter power that is not used for the system goes to charging the battery. All power switches for charging and switching the system load between the battery and adapter power are included on chip-no external MOSFETs are required.\nMaxim's  proprietary  process  technology  allows  for  low-RDSON  devices  in  a  small  solution  size.  The  total  dropout resistance from adapter power input to the battery is 165m\u03a9 (typ) assuming that the inductor has 0.04\u03a9 of ESR. This 165m\u03a9 typical dropout resistance allows for charging a battery up to 3.0A from a 5V supply. The resistance from the BATT-to-SYS node is 20m\u03a9, allowing for low-power dissipation and long battery life.\nA multitude of safety features ensures reliable charging. Features include a charge timer, junction thermal regulation, over/undervoltage protection, and short circuit protection."
+    },
+    {
+      "chunk_index": 36,
+      "page_number": 20.0,
+      "page_numbers": [
+        "20"
+      ],
+      "section_heading": "Detailed Description",
+      "text": "Detailed Description\nThe BATT-to-SYS switch has overcurrent protection (see the Battery Overcurrent Protection section for more information)."
+    },
+    {
+      "chunk_index": 37,
+      "page_number": 20.0,
+      "page_numbers": [
+        "20"
+      ],
+      "section_heading": "Smart Power Selector",
+      "text": "Smart Power Selector\nThe Smart Power Selector (SPS) architecture is a network of internal switches and control loops that distributes energy between CHGIN, BYP, SYS, and BATT.\nFigure 1 shows a simplified arrangement for the smart power selector's power steering switches. Figure 2 shows a more detailed arrangement of the smart power selector switches and gives them the following names: Q CHGIN , Q HS , Q LS , and QBAT."
+    },
+    {
+      "chunk_index": 38,
+      "page_number": 20.0,
+      "page_numbers": [
+        "20"
+      ],
+      "section_heading": "Switch and Control Loop Descriptions",
+      "text": "Switch and Control Loop Descriptions\n- CHGIN Input Switch: Q CHGIN  provides input overvoltage protection of +16V. The input switch is either completely on or completely off.  As shown in Figure 2 , there are SPS control loops that monitor the current through the input switches as well as the input voltage.\n- DC-DC Switches: Q HS  and Q LS  are the DC-DC switches which can operate as a buck (step-down) or a boost (stepup). When operating as a buck, energy is moved from BYP to SYS. When operating as a boost, energy is moved from SYS to BYP. SPS control loops monitor the DC-DC switch current, the SYS voltage, and the BYP voltage.\n- Battery-to-System Switch: Q BAT  controls the battery charging and discharging. Additionally, Q BAT  allows the battery to be isolated from the system (SYS). An SPS control loop monitors the Q BAT  current."
+    },
+    {
+      "chunk_index": 39,
+      "page_number": 20.0,
+      "page_numbers": [
+        "20"
+      ],
+      "section_heading": "SYS Regulation Voltage",
+      "text": "SYS Regulation Voltage\n- When the DC-DC is enabled as a buck and the charger is enabled but in a non-charging state (i.e., Done, thermal shutdown, or timer fault), V SYS  is regulated to V BATTREG  and Q BAT  is off.\n- When the DC-DC is enabled as a buck and is charging in trickle-charge, fast-charge, or top-off modes, V SYS  is regulated to V SYSMIN  when the V PRECHG  < V BATT  < V SYSMIN . Additionally, when the DC-DC is enabled as a buck and is charging in precharge mode (V BATT  < V PRECHG ), V SYS  is regulated to V BATTREG . In these modes, the Q BAT switch acts like a linear regulator and dissipates power [P = (V SYS  - V BATT ) \u00d7 I BATT ]. When V BATT  > V SYSMIN , then VSYS  = V BATT +  I BATT  \u00d7 R BAT2SYS . In this mode, the Q BAT  switch is closed.\nFor the above modes, if the combined SYS loading exceeds the input current limit, then V SYS  drops to V BATT  - V BSREG , and the battery provides supplemental current."
+    },
+    {
+      "chunk_index": 40,
+      "page_number": 21.0,
+      "page_numbers": [
+        "21"
+      ],
+      "section_heading": "Input Validation",
+      "text": "Input Validation\nThe charger input is compared with several voltage thresholds to determine if it is valid. A charger input must meet the following three characteristics to be valid:\n- CHGIN must be above V CHGIN_UVLO  to be valid\nOnce CHGIN is above the UVLO threshold, the information (together with LIN2SYS, as shown in Figure 3 ) is latched and can only be reset when the charger is in the adaptive input current loop (AICL) and the input current is lower than the IULO threshold of 60mA. Note that V CHGIN_REG  is lower than the UVLO falling threshold.\n- CHGIN must be below its overvoltage lockout threshold (V CHGIN_OVLO )\n- CHGIN must be above the system voltage (V CHGIN2SYS )\nFigure 3. CHGIN Valid Signal Generation Logic\nIf V CHGIN  is greater than V CHGIN_UVLO , the USB Type-C CC and BC1.2 detection process starts. After the MAX77751 finishes USB detection, the switcher in the chip starts. The system can detect that a valid charger is present by the INOKB output signal, which is issued when the switcher starts and the VCHGIN_VLD signal is valid, as shown in Figure 4 .\nFigure 4. INOKB Signal Generation Logic"
+    },
+    {
+      "chunk_index": 41,
+      "page_number": 21.0,
+      "page_numbers": [
+        "21"
+      ],
+      "section_heading": "Input Current Limit",
+      "text": "Input Current Limit\nAfter the charger-type detection is done, the MAX77751 automatically configures the input current limit to the highest settings that the source can provide. If the input source is not a standard power source described by BC1.2 or USB TypeC or is not a proprietary charger type that the MAX77751 can detect, the MAX77751 sets the input current limit to 3A."
+    },
+    {
+      "chunk_index": 42,
+      "page_number": 22.0,
+      "page_numbers": [
+        "22"
+      ],
+      "section_heading": "Input Voltage Regulation Loop",
+      "text": "Input Voltage Regulation Loop\nAn input voltage regulation loop allows the charger to be well behaved when it is attached to a poor-quality charge source. The loop improves performance with relatively high resistance charge sources that exist when long cables are used or devices are charged with noncompliant USB hub configurations.\nThe  input  voltage  regulation  loop  automatically  reduces  the  input  current  limit  in  order  to  keep  the  input  voltage  at VCHGIN_REG.  If  the  input  current  limit  is  reduced  to  I CHGIN_REG_OFF   (50mA  typ)  and  the  input  voltage  is  below VCHGIN_REG, then the charger input is turned off."
+    },
+    {
+      "chunk_index": 43,
+      "page_number": 22.0,
+      "page_numbers": [
+        "22"
+      ],
+      "section_heading": "Input Self-Discharge",
+      "text": "Input Self-Discharge\nWhen the charge source is removed, the input voltage decays below the UVLO threshold in time (t INSD ). The input selfdischarge is implemented with a 44k\u03a9 resistor (R INSD ) from the CHGIN input to ground."
+    },
+    {
+      "chunk_index": 44,
+      "page_number": 22.0,
+      "page_numbers": [
+        "22",
+        "23"
+      ],
+      "section_heading": "Charger States",
+      "text": "Charger States\nThe MAX77751 utilizes several charging states to safely and quickly charge batteries, as shown in Figure 5 and Figure 6 . Figure 5 shows an exaggerated view of a Li+/Li-Poly battery progressing through the following charge states when there is no system load and the die and battery are close to room temperature: precharge \u2794 trickle \u2794 fast-charge \u2794 top-off \u2794 done.\nFigure 5. Li+/Li-Poly Charge Profile\nFigure 6. Charger State Diagram"
+    },
+    {
+      "chunk_index": 45,
+      "page_number": 24.0,
+      "page_numbers": [
+        "24"
+      ],
+      "section_heading": "INIT State",
+      "text": "INIT State\nFrom any state shown in Figure 6 except thermal shutdown, the INIT state is entered whenever the charger inputs that CHGIN is invalid or the charger timer is suspended.\nWhile in the INIT state, the charger current is 0mA, the charge timer is forced to 0, and the power to the system is provided by the battery.\nTo exit the INIT state, the charger input must be valid."
+    },
+    {
+      "chunk_index": 46,
+      "page_number": 24.0,
+      "page_numbers": [
+        "24"
+      ],
+      "section_heading": "Buck State",
+      "text": "Buck State\nThe chip has a state where battery charging is disabled while the charger input CHGIN is valid. The state is called buck state. Entering or leaving buck state is controlled by the voltage of the ITOPOFF pin. If the voltage of this pin is pulled down by an external device (i.e., MCU) under V CHGR_EN , the chip goes to the buck state from any state if CHGIN is valid, as shown in Figure 6 . In the buck state, charging is disabled, which means Q BAT  is off, unless it is in supplement mode. If the voltage of this pin is over V CHGR_EN , the chip gets out of the buck state and resumes charging. Note that only when CHGIN is valid, charging can be enabled or disabled. Therefore, the external device (i.e., MCU) should check using the INOKB signal if CHGIN is valid before trying to enable or disable charging."
+    },
+    {
+      "chunk_index": 47,
+      "page_number": 24.0,
+      "page_numbers": [
+        "24"
+      ],
+      "section_heading": "Precharge State",
+      "text": "Precharge State\nAs shown in Figure 6 , the precharge state occurs when the battery voltage is less than V PRECHG . In the precharge state, charge current into the battery is I PRECHG .\nThe following events cause the state machine to exit this state:\n- Battery voltage rises above V PRECHG , and the charger enters the next state in the charging cycle, trickle charge state.\n- If the battery charger remains in this state for longer than t PQ , the charger state machine transitions to the timer fault state.\nThe precharge state works with battery voltages down to 0V. The low 0V operation typically allows this battery charger to recover batteries that have an 'open' internal pack protector. Typically, an internal pack protection circuit opens if the battery has seen an overcurrent, undervoltage, or overvoltage. When a battery with an 'open' internal pack protector is used with this charger, the precharge state current flows into the 0V battery-this current raises the pack's terminal voltage to the voltage level where the internal pack protection switch closes.\nNote that a normal battery typically stays in the precharge state for several minutes or less. Therefore, a battery that stays in the precharge state for longer than t PQ  might be experiencing a problem."
+    },
+    {
+      "chunk_index": 48,
+      "page_number": 24.0,
+      "page_numbers": [
+        "24"
+      ],
+      "section_heading": "Trickle Charge State",
+      "text": "Trickle Charge State\nAs shown in Figure 6 , the trickle charge state occurs when V BATT  > V PRECHG  and V BATT  < V TRICKLE .\nWhen the MAX77751 is in the trickle charge state, the charge current in the battery is less than or equal to I TRICKLE .\nThe charge current might be less than I TRICKLE  for any of the following reasons:\n- The charger input current is lower than the input current limit\n- The charger input voltage is low\n- The charger is in thermal foldback\n- The system load is consuming adapter current. Note that the system load always gets priority over the battery charge current.\nThe following events cause the state machine to exit this state:\n- When the main battery voltage rises above V TRICKLE , the charger enters the next state in the charging cycle, fastcharge constant current state.\n- If the battery charger remains in this state for longer than t PQ , the charger state machine transitions to the timer fault state.\nNote that a normal battery typically stays in the trickle charge state for several minutes or less. Therefore, a battery that stays in trickle charge state for longer than t PQ  might be experiencing a problem."
+    },
+    {
+      "chunk_index": 49,
+      "page_number": 25.0,
+      "page_numbers": [
+        "25"
+      ],
+      "section_heading": "Fast-Charge Constant Current State",
+      "text": "Fast-Charge Constant Current State\nAs shown in Figure 6 , the fast-charge constant current (CC) state occurs when the battery voltage is greater than the trickle threshold and less than the battery regulation threshold (V TRICKLE  < V BATT  < V BATTREG ).\nIn the fast-charge CC state, the current into the battery is less than or equal to I FC . The charge current can be less than I FC for any of the following reasons:\n- The charger input current is lower than the input current limit\n- The charger input voltage is low\n- The charger is in thermal foldback\n- The system load is consuming adapter current. Note that the system load always gets priority over the battery charge current.\nThe following events cause the state machine to exit this state:\n- When the battery voltage rises above V BATTREG , the charger enters the next state in the charging cycle, fast-charge constant voltage state.\n- If the battery charger remains in this state for longer than t FC , the charger state machine transitions to the timer fault state.\nThe battery charger dissipates the most power in the fast-charge CC state. This power dissipation causes the internal die temperature to rise. If the die temperature exceeds T REG , I FC  is reduced. See the Thermal Foldback section for more information."
+    },
+    {
+      "chunk_index": 50,
+      "page_number": 25.0,
+      "page_numbers": [
+        "25"
+      ],
+      "section_heading": "Fast-Charge Constant Voltage State",
+      "text": "Fast-Charge Constant Voltage State\nAs shown in Figure 6 , the fast-charge constant voltage (CV) state occurs when the battery voltage rises to V BATTREG from the fast-charge CC state.\nIn the fast-charge CV state, the battery charger maintains V BATTREG  across the battery, and the charge current is less than or equal to I FC . As shown in Figure 5 ,  the  charger current decreases exponentially in this state as the battery becomes fully charged.\nThe smart power selector control circuitry might reduce the charge current lower than the battery can otherwise consume for any of the following reasons:\n- The charger input current is lower than the input current limit\n- The charger input voltage is low\n- The charger is in thermal foldback\n- The system load is consuming adapter current. Note that the system load always gets priority over the battery charge current.\nThe following events cause the state machine to exit this state:\n- When the charger current is below I TO  for t TERM , the charger enters the next state in the charging cycle, top-off state.\n- If the battery charger remains in this state for longer than t FC , the charger state machine transitions to the timer fault state."
+    },
+    {
+      "chunk_index": 51,
+      "page_number": 26.0,
+      "page_numbers": [
+        "26"
+      ],
+      "section_heading": "Top-Off State",
+      "text": "Top-Off State\nAs shown in Figure 6 ,  the  top-off  state  can  only  be  entered from the fast-charge CV state when the charger current decreases below I TO  for t TERM . In the top-off state, the battery charger tries to maintain V BATTREG  across the battery, and typically, the charge current is less than or equal to I TO .\nThe smart power selector control circuitry might reduce the charge current lower than the battery can otherwise consume for any of the following reasons:\n- The charger input current is lower than the input current limit\n- The charger input voltage is low\n- The charger is in thermal foldback\n- The system load is consuming adapter current. Note that the system load always gets priority over the battery charge current.\nThe following events cause the state machine to exit this state:\n- After being in this state for the top-off time (t TO ), the charger enters the next state in the charging cycle, done state.\n- If V BATT  < V BATTREG  - V RSTRT , the charger goes back to the fast-charge CC state"
+    },
+    {
+      "chunk_index": 52,
+      "page_number": 26.0,
+      "page_numbers": [
+        "26"
+      ],
+      "section_heading": "Done State",
+      "text": "Done State\nAs shown in Figure 6 , the battery charger enters its done state after the charger has been in the top-off state for t TO .\nThe state machine exits this state if V BATT  < V BATTREG  - V RSTRT  and the charger goes back to the fast-charge CC state\nIn the done state, the charge current into the battery (I CHG ) is 0A, and the charger presents a very low quiescent current to the battery. If the system load presented to the battery is low (<<100\u03bcA), then a typical system can remain in the done state for many days. If left in the done state long enough, the battery voltage decays below the restart threshold (V RSTRT ) and the charger state machine transitions back into the fast-charge CC state. There is no soft-start (di/dt limiting) during the done state to fast-charge state transition."
+    },
+    {
+      "chunk_index": 53,
+      "page_number": 26.0,
+      "page_numbers": [
+        "26"
+      ],
+      "section_heading": "Timer Fault State",
+      "text": "Timer Fault State\nThe battery charger provides a charge timer to ensure safe charging. As shown in Figure 6 , the charge timer prevents the battery from charging indefinitely. The time that the charger is allowed to remain in each of its prequalification states is t PQ . The time that the charger is allowed to remain in the fast-charge CC and fast-charge CV states is t FC . Finally, the time that the charger is in the top-off state is t TO . Upon entering the timer fault state, STAT becomes Hi-Z.\nIn the timer fault state, the charger is off. The charger input can be removed and re-inserted to exit the timer fault state (see the 'any state' bubble in the lower left of Figure 6 )."
+    },
+    {
+      "chunk_index": 54,
+      "page_number": 26.0,
+      "page_numbers": [
+        "26"
+      ],
+      "section_heading": "Thermal Shutdown State",
+      "text": "Thermal Shutdown State\nAs shown in Figure  6 ,  the  thermal  shutdown  state  occurs  when  the  battery  charger  is  in  any  state  and  the  junction temperature (T J ) exceeds the device's thermal shutdown threshold (TSHDN). When T J  is close to T REG , the charger folds back the charge current to 0A so that the charger is effectively off (see the Thermal Foldback section).\nIn the thermal shutdown state, the charger is off."
+    },
+    {
+      "chunk_index": 55,
+      "page_number": 27.0,
+      "page_numbers": [
+        "27"
+      ],
+      "section_heading": "Reverse Boost Mode",
+      "text": "Reverse Boost Mode\nThe DC-DC converter topology of the MAX77751 allows it to operate as a buck converter or as a reverse boost converter. The modes of the DC-DC converter are controlled by ENBST. When ENBST = high, the DC-DC converter operates in reverse boost mode allowing it to source current to BYP and CHGIN. It is commonly referred to as OTG mode or a source role.\nThe current through the BYP to CHGIN switch is limited to 1.5A minimum. When the reverse boost mode is enabled, the unipolar CHGIN transfer function measures current going out of CHGIN.\nThe BYP to CHGIN switch automatically tries to retry after 300ms if CHGIN loading exceeds the 1.5A current limit. If the overload at CHGIN persists, then the CHGIN switch toggles ON and OFF with approximately 60ms ON and approximately 300ms OFF."
+    },
+    {
+      "chunk_index": 56,
+      "page_number": 27.0,
+      "page_numbers": [
+        "27"
+      ],
+      "section_heading": "Battery Overcurrent Protection During System Power-Up",
+      "text": "Battery Overcurrent Protection During System Power-Up\nThe battery overcurrent protection during system power-up feature limits the battery to system current to I SYSPU  if V SYS is  less  than  V SYSPU .  This  feature  limits  the  surge  current  that  typically  flows  from  the  battery  to  the  device's  lowimpedance system to bypass capacitors during a system power-up. System power-up is anytime that energy from the battery is supplied to SYS when V SYS  < V SYSPU . This system power-up condition typically occurs when a battery is hot inserted into an otherwise unpowered device.\nWhen system power-up occurs due to hot-insertion into an otherwise unpowered device, a small delay is required for this feature's control circuits to activate. A current spike over I SYSPU  might occur during this time."
+    },
+    {
+      "chunk_index": 57,
+      "page_number": 27.0,
+      "page_numbers": [
+        "27"
+      ],
+      "section_heading": "Battery Overcurrent Protection Due to Fault",
+      "text": "Battery Overcurrent Protection Due to Fault\nThe MAX77751 protects itself, the battery, and the system from potential damage due to excessive battery discharge current. Excessive battery discharge current can occur for several reasons such as exposure to moisture, a software problem, an IC failure, a component failure, or a mechanical failure that causes a short circuit.\nWhen the battery (BATT)-to-system (SYS) discharge current (I BATT ) exceeds 6A for at least t BOVRC , then the MAX77751 disables the BATT-to-SYS discharge path (Q BAT  switch) and turns off buck.\nUnder the OCP fault condition, when SYS is low (V SYS  < V SYSUP ) for t OCP_RETRY , the MAX77751 restarts on its own and attempts to pull up SYS again. If the fault condition remains, the whole cycle repeats until this fault condition is removed."
+    },
+    {
+      "chunk_index": 58,
+      "page_number": 27.0,
+      "page_numbers": [
+        "27",
+        "28"
+      ],
+      "section_heading": "Thermal Foldback",
+      "text": "Thermal Foldback\nThermal foldback maximizes the battery charge current while regulating the MAX77751 junction temperature. As shown in Figure 7 ,  when the die temperature exceeds the REGTEMP (T REG ), a thermal limiting circuit reduces the battery charger's target current by 5% of the fast charge current per 1\u00b0C (A TJREG ), which corresponds to 157.5mA/\u00b0C when the fast charge current is 3.15A. The target charge current reduction is achieved with an analog control loop (i.e., not a digital reduction in the input current).\nFigure 7. Charge Currents vs. Junction Temperature"
+    },
+    {
+      "chunk_index": 59,
+      "page_number": 29.0,
+      "page_numbers": [
+        "29"
+      ],
+      "section_heading": "VDD Internal Supply",
+      "text": "VDD Internal Supply\nVDD is the 1.8V power for the MAX77751 charger's analog circuit. V DD  is generated from the higher value between BATT and CHGIN as the power input source and generates the internal power supply. V DD  has a bypass capacitance of 2.2\u00b5F."
+    },
+    {
+      "chunk_index": 60,
+      "page_number": 29.0,
+      "page_numbers": [
+        "29"
+      ],
+      "section_heading": "ENBST For Reverse Boost",
+      "text": "ENBST For Reverse Boost\nENBST is an input control signal for the reverse boost mode with an external logic signal. If ENBST is driven high, the reverse boost is enabled and the BYP-to-CHGIN path is closed. ENBST has an internal 235k\u03a9 pulldown resistor. When ENBST sets to high, the MAX77751 disconnects Rd from the CC line and provides a 180\u03bcA current source."
+    },
+    {
+      "chunk_index": 61,
+      "page_number": 29.0,
+      "page_numbers": [
+        "29"
+      ],
+      "section_heading": "Features",
+      "text": "Features\n- D+/D- Charging Signature Detector\n- USB BC1.2 Compliant SDP, DCP, and CDP Detection\n- Proprietary Charger Types Detection\n- Apple 500mA, 1A, 2A, 2.4A\n-  Samsung 2A"
+    },
+    {
+      "chunk_index": 62,
+      "page_number": 29.0,
+      "page_numbers": [
+        "29"
+      ],
+      "section_heading": "Description",
+      "text": "Description\nThe USB charger detection is USB BC1.2 compliant with the ability to automatically detect some common proprietary charger types.\nThe Charger Detection State Machine follows USB BC1.2 requirements and  detects SDP, CDP, and DCP types. In addition to the USB BC1.2 State Machine, the IC also detects a limited number of proprietary charger types (Apple and Samsung). The IC automatically sets the CHGIN input current limit based on the charger type detection results. If charger type detection results are an unknown charger type or D+/D- are found as open, the input current limits are set to 3A max."
+    },
+    {
+      "chunk_index": 63,
+      "page_number": 29.0,
+      "page_numbers": [
+        "29"
+      ],
+      "section_heading": "Table 1. USB BC1.2 Detected Charger Type",
+      "text": "Table 1. USB BC1.2 Detected Charger Type\n500mA, CHARGER DETECTED = SDP. 1.5A, CHARGER DETECTED = CDP. 1.5A, CHARGER DETECTED = DCP"
+    },
+    {
+      "chunk_index": 64,
+      "page_number": 29.0,
+      "page_numbers": [
+        "29"
+      ],
+      "section_heading": "Table 2. Detected Proprietary Charger Type",
+      "text": "Table 2. Detected Proprietary Charger Type\n500mA, CHARGER DETECTED = Apple. 1A, CHARGER DETECTED = Apple. 2A, CHARGER DETECTED = Apple. 2.4A, CHARGER DETECTED = Apple. 2A, CHARGER DETECTED = Samsung. 3A, CHARGER DETECTED = All others"
+    },
+    {
+      "chunk_index": 65,
+      "page_number": 30.0,
+      "page_numbers": [
+        "30"
+      ],
+      "section_heading": "Features",
+      "text": "Features\n- USB Type-C Sink Support\n- CC Source Detection\n- Automatic Set of the Input Current Limit According to Source Capability\n- Source Role Support by ENBST Pin"
+    },
+    {
+      "chunk_index": 66,
+      "page_number": 30.0,
+      "page_numbers": [
+        "30"
+      ],
+      "section_heading": "CC Description",
+      "text": "CC Description\nThe  MAX77751  is  sink  compliant  to  the  USB  Type-C  Rev  1.2  specifications.  The  USB  Type-C  functions  are controlled by a logic state machine which follows the USB Type-C requirements. The MAX77751 sets the CHGIN input current limit based on the current advertised on the CC wires. The source role is enabled by the ENBST pin. When the source role is enabled, Rd is removed, and a 180\u03bcA current source is connected."
+    },
+    {
+      "chunk_index": 67,
+      "page_number": 30.0,
+      "page_numbers": [
+        "30"
+      ],
+      "section_heading": "Detecting Connected Source",
+      "text": "Detecting Connected Source\nWhen a source is detected, the USB Type-C state machine auto detects the active CC line. The state machine also automatically  detects  the  source  advertised  current  (500mA,  1.5A,  and  3.0A).  Upon  detection  of  a  change  in  the advertised current, the MAX77751 automatically sets the input current limit."
+    },
+    {
+      "chunk_index": 68,
+      "page_number": 30.0,
+      "page_numbers": [
+        "30"
+      ],
+      "section_heading": "D+/D- Detection in CC Detection",
+      "text": "D+/D- Detection in CC Detection\nThe MAX77751 executes D+/D- detection and CC detection in parallel and takes the higher of the two input current limit values determined by D+/D- detection and by CC detection. No connection in the D+ and D- lines is considered as an unknown adapter, and therefore the final input current limit is always 3A, regardless of the CC detection result."
+    },
+    {
+      "chunk_index": 69,
+      "page_number": 30.0,
+      "page_numbers": [
+        "30"
+      ],
+      "section_heading": "Non-USB Type-C Connector Cases",
+      "text": "Non-USB Type-C Connector Cases\nSome target systems could have other types of connectors such as Micro-B and barrel connectors other than USB TypeC connectors. Since the Micro-B connector does not have CC1 and CC2 pins and the barrel connector does not have CC1, CC2, D+ and D- pins, the recommended connections described in the following sections can be used in the target system."
+    },
+    {
+      "chunk_index": 70,
+      "page_number": 30.0,
+      "page_numbers": [
+        "30"
+      ],
+      "section_heading": "Micro-B Connector",
+      "text": "Micro-B Connector\nIn the case of a Micro-B connector, CC1 and CC2 can be floated as shown in Figure 8 . When CC1 and CC2 are floating, the MAX77751 determines the input current limit solely based on D+/D- detection such as BC1.2 and some proprietary TA detection.\nFigure 8. USB Signal Connections for a Micro-B Connector"
+    },
+    {
+      "chunk_index": 71,
+      "page_number": 31.0,
+      "page_numbers": [
+        "31"
+      ],
+      "section_heading": "Barrel Connectors",
+      "text": "Barrel Connectors\nWhen a barrel connector is used in the application, there is no connection to determine the input current limit. Resistors can be connected to mimic BC1.2 detection and/or CC detection to configure the desired input current limit. If the capacity of the power source is 500mA, the MAX77751 can set the input current limit to 500mA by configuring resistors on DP/DN for BC1.2 SDP ( Figure 9 ). R1 and R2 should have the same resistance with the recommended value of 20k\u03a9. Meanwhile, if the capacity of the power source is 1.5A, the MAX77751 can set the input current limit to 1.5A by connecting a resistor for BC1.2 DCP as shown in Figure 10 . The recommended value of resistor R is 200\u03a9.\nFigure 9. Connections for a Barrel Connector (500mA Power Source)\nFigure 10. Connections for a Barrel Connector (1.5A Power Source)"
+    },
+    {
+      "chunk_index": 72,
+      "page_number": 31.0,
+      "page_numbers": [
+        "31"
+      ],
+      "section_heading": "Enable Source Role",
+      "text": "Enable Source Role\nENBST = high enables the MAX77751's source role. The MAX77751 disconnects Rd from the CC line and connects an 180\u03bcA current source to advertise the 5V/1.5A power source. The MAX77751 enables the reverse boost and supply 5.1V/1.5A through the CHGIN pin."
+    },
+    {
+      "chunk_index": 73,
+      "page_number": 32.0,
+      "page_numbers": [
+        "32"
+      ],
+      "section_heading": "Fast-Charge Current Setting",
+      "text": "Fast-Charge Current Setting\nWhen a valid input source is present, the battery charger attempts to charge the battery with a fast-charge current determined by the resistance from I FAST  to GND. Table 3 shows the resistance values which correspond to the target I FAST values."
+    },
+    {
+      "chunk_index": 74,
+      "page_number": 32.0,
+      "page_numbers": [
+        "32"
+      ],
+      "section_heading": "Table 3. Fast-Charge Current Settings",
+      "text": "Table 3. Fast-Charge Current Settings\n24.9, I FAST (mA) = 3150. 22.6, I FAST (mA) = 3000. 20.5, I FAST (mA) = 2800. 18.7, I FAST (mA) = 2500. 16.9, I FAST (mA) = 2400. 15.4, I FAST (mA) = 2200. 14, I FAST (mA) = 2000. 12.4, I FAST (mA) = 1800. 11, I FAST (mA) = 1500. 9.53, I FAST (mA) = 1400. 8.2, I FAST (mA) = 1200. 6.65, I FAST (mA) = 1000. 5.23, I FAST (mA) = 800. 3.6, I FAST (mA) = 600. 2.4, I FAST (mA) = 500"
+    },
+    {
+      "chunk_index": 75,
+      "page_number": 32.0,
+      "page_numbers": [
+        "32"
+      ],
+      "section_heading": "Top-Off Current Setting",
+      "text": "Top-Off Current Setting\nThe top-off  charging  current  is  programmed  by  an  external  resistor  connected  from  ITOPOFF  to  GND  (RTOPOFF). Table 4 shows the resistance values which correspond to the target ITOPOFF values."
+    },
+    {
+      "chunk_index": 76,
+      "page_number": 32.0,
+      "page_numbers": [
+        "32"
+      ],
+      "section_heading": "Table 4. Top-Off Current Settings",
+      "text": "Table 4. Top-Off Current Settings\n24.3, ITOPOFF (mA) = 350. 19.6, ITOPOFF (mA) = 300. 16.5, ITOPOFF (mA) = 250. 13.3, ITOPOFF (mA) = 200. 10.2, ITOPOFF (mA) = 150. 8.06, ITOPOFF (mA) = 100"
+    },
+    {
+      "chunk_index": 77,
+      "page_number": 32.0,
+      "page_numbers": [
+        "32",
+        "33"
+      ],
+      "section_heading": "D+/D- Multiplexing",
+      "text": "D+/D- Multiplexing\nThe USB D+/D- lines, which are used for BC1.2 and proprietary adapter detection, can be used for data communication. If an MCU handles this communication in the target system, the D+/D- lines can be connected to the MAX77751 and the MCU, as shown in Figure 11 . The switchers are required for each D+ and D- lines to guarantee high impedance state for the MCU connections to avoid incorrect adapter detection. It is recommended to connect the MAX77751's INOKB to the MCU in this configuration so that the MAX77751 can signal that detection is complete to the MCU. When the  MCU receives a valid INOKB signal, it can switch the D+/D- lines from the MAX77751 to the MCU for data communication.\nFigure 11. D+/D- Connections in a Reference System"
+    },
+    {
+      "chunk_index": 78,
+      "page_number": 33.0,
+      "page_numbers": [
+        "33"
+      ],
+      "section_heading": "Capacitor Selection",
+      "text": "Capacitor Selection\nAll  capacitors  should  be  X5R  dielectric  or  better.  Be  aware  that  multi-layer  ceramic  capacitors  have  large  voltage coefficients. Before selecting capacitors, check for sufficient voltage rating and derated capacitance at the max operating voltage condition. Table 5 shows the capacitors to select after considering the derating and operating voltage."
+    },
+    {
+      "chunk_index": 79,
+      "page_number": 33.0,
+      "page_numbers": [
+        "33"
+      ],
+      "section_heading": "Table 5. Capacitor Selections",
+      "text": "Table 5. Capacitor Selections\nCHGIN Capacitor, TYPE = 2.2\u00b5F/16V. BYP Capacitor, TYPE = 10\u00b5F + 22\u00b5F/16V. SYS Capacitor, TYPE = 2x10\u00b5F/10V. BATT Capacitor, TYPE = 10\u00b5F/10V. VDD Capacitor, TYPE = 2.2\u00b5F/10V. PVL Capacitor, TYPE = 2.2\u00b5F/10V. BST Capacitor, TYPE = 100nF/6.3V"
+    },
+    {
+      "chunk_index": 80,
+      "page_number": 33.0,
+      "page_numbers": [
+        "33",
+        "34"
+      ],
+      "section_heading": "Thermal Considerations",
+      "text": "Thermal Considerations\nIf  the  system  that  includes  the  MAX77751  can  read  the  battery  temperature,  the  temperature  can  be  controlled  by adjusting the battery current through enabling switching and disabling charging. As described in the Buck State section, charging is disabled by pulling the ITOPOFF pin low. Figure 12 shows a recommended system diagram where the MCU has an ADC to sense the temperature, a GPIO output connected to ITOPOFF to enable or disable charging, and a GPIO input connected to INOKB to check the presence of a valid charger. Note that the GPIO output should be an open-drain type. In this system configuration, if the MCU judges the temperature is too high, the MCU should pull the GPIO output low to disable charging. It is important to check if a valid charger is present through the INOKB signal before disabling charging. Pulling ITOPOFF low when the INOKB signal is high (i.e., inactive) could affect the TOPOFF current sensing. Meanwhile, if the temperature goes back to normal, the MCU should make the GPIO be high impedance state to enable charging.\nFigure 12. System Configuration for Temperature Management\nIf the system does not have an MCU which can get the INOKB signal from the MAX77751 and provide the enable or disable signal to ITOPOFF of the MAX77751, the circuit depicted in Figure 13 can provide the same function which the MCU does in Figure 12 .  The Hot and Cold Temperature Detection portion of the circuit detects if the temperature is greater than the hot threshold or less than the cold threshold . If the temperature is hot or cold, it provides the disable signal (Active High) to the INOKB Control portion of the circuit, which can control the disable signal according to the INOKB status. If INOKB is high (i.e., the charger input is not valid), the disable signal from the temperature detection part is blocked. If INOKB is low (i.e., the charger input is valid), the disable signal passes through the INOKB Control part and reach the ITOPOFF pin of the MAX77751. If the output of the temperature detection part is high (i.e., the disable signal) when INOKB is low, ITOPOFF is pulled low, and battery charging through the MAX77751 is disabled."
+    },
+    {
+      "chunk_index": 81,
+      "page_number": 35.0,
+      "page_numbers": [
+        "35"
+      ],
+      "section_heading": "Thermal Considerations",
+      "text": "Thermal Considerations\nFigure 13. System Configuration for Temperature Management"
+    },
+    {
+      "chunk_index": 82,
+      "page_number": 36.0,
+      "page_numbers": [
+        "36"
+      ],
+      "section_heading": "Non-USB Type Power Source",
+      "text": "Non-USB Type Power Source\nIn an application where the power source is not USB, all the USB related pins such as CC1, CC2, DP, and DN should be left not connected (NC). In this case, the input current to the MAX77751 is limited to 3A."
+    },
+    {
+      "chunk_index": 83,
+      "page_number": 36.0,
+      "page_numbers": [
+        "36"
+      ],
+      "section_heading": "Recommended PCB Layout and Routing",
+      "text": "Recommended PCB Layout and Routing\nPlace all bypass capacitors for CHGIN, BYP, SYS, V DD , and BATT as close as possible to the IC. Connect the battery to BATT as close as possible to the IC to provide accurate battery voltage sensing. Provide a large copper ground plane to allow the PGND pad to sink heat away from the device. Use wide and short traces for high current connections such as CHGIN, BYP, SYS, and BATT to minimize voltage drops. The MAX77751 has two kinds of ground pins: PGND and GND. Carefully connect PGND because it is a switching node ground of the Charger Buck. It should be tied to ground of the SYS and BYP capacitors and connected to the ground plane directly without sharing other ground. The GND can be connected to the ground plane.\nFigure 14 is a recommended placement and layout guide.\nFigure 14. Recommended Placement and Layout"
+    },
+    {
+      "chunk_index": 84,
+      "page_number": 37.0,
+      "page_numbers": [
+        "37"
+      ],
+      "section_heading": "Inductor Selection",
+      "text": "Inductor Selection\nThe MAX77751's control scheme requires an external inductor from 0.47\u03bcH to 1\u03bcH for proper operation.\nTable 6. Recommended Inductors\n\nSEMCO, PART NUMBER = CIGT252008LMR47MNE. SEMCO, INDUCTANCE (\u03bcH) = 0.47. SEMCO, I SAT(TYP) (A) = 5.5. SEMCO, I RMS(TYP) (A) = 4.5. SEMCO, DCR(TYP) (m\u03a9) = 24. SEMCO, SIZE (L x W x T) (mm) = 2.5 x 2.0 x 0.8. SEMCO, PART NUMBER = CIGT252010LMR47MNE. SEMCO, INDUCTANCE (\u03bcH) = 0.47. SEMCO, I SAT(TYP) (A) = 6. SEMCO, I RMS(TYP) (A) = 4.5. SEMCO, DCR(TYP) (m\u03a9) = 24. SEMCO, SIZE (L x W x T) (mm) = 2.5 x 2.0 x 1.0. SEMCO, PART NUMBER = CIGT201610EHR47MNE. SEMCO, INDUCTANCE (\u03bcH) = 0.47. SEMCO, I SAT(TYP) (A) = 5.9. SEMCO, I RMS(TYP) (A) = 5. SEMCO, DCR(TYP) (m\u03a9) = 18. SEMCO, SIZE (L x W x T) (mm) = 2.0 x 1.6 x 1.0. CYNTEC, PART NUMBER = HTGH25201T-R47MSR-68. CYNTEC, INDUCTANCE (\u03bcH) = 0.47. CYNTEC, I SAT(TYP) (A) = 6.6. CYNTEC, I RMS(TYP) (A) = 5.6. CYNTEC, DCR(TYP) (m\u03a9) = 16.5. CYNTEC, SIZE (L x W x T) (mm) = 2.5 x 2.0 x 1.0"
+    },
+    {
+      "chunk_index": 85,
+      "page_number": 37.0,
+      "page_numbers": [
+        "37"
+      ],
+      "section_heading": "Input Status (INOKB)",
+      "text": "Input Status (INOKB)\nINOKB is an open-drain and active low output that indicates the input status. If a valid input source is inserted and the buck converter starts switching, INOKB pulls low. When the reverse boost is enabled, INOKB pulls low to indicate 5V output from CHGIN.\nINOKB can be used as a logic output for the system processor by adding a 200k\u03a9 pullup resistor to the system IO voltage.\nINOKB can also be used as an LED indicator driver by adding a current limit resistor and an LED to SYS."
+    },
+    {
+      "chunk_index": 86,
+      "page_number": 37.0,
+      "page_numbers": [
+        "37"
+      ],
+      "section_heading": "Charging Status Output (STAT)",
+      "text": "Charging Status Output (STAT)\nSTAT is an open-drain and active low output that indicates charge status. Table 7 shows the STAT status changes."
+    },
+    {
+      "chunk_index": 87,
+      "page_number": 37.0,
+      "page_numbers": [
+        "37"
+      ],
+      "section_heading": "Table 7. STAT Output Per Charging Status",
+      "text": "Table 7. STAT Output Per Charging Status\nNo input, STAT = High impedance. No input, LOGIC STATE = High. No input, CHARGE STATUS LED = Off. Trickle, precharge, fast charge, STAT = Repeat low and high impedance with 1Hz, 50% duty cycle. Trickle, precharge, fast charge, LOGIC STATE = After an external diode and a capacitor rectifier, high. Trickle, precharge, fast charge, CHARGE STATUS LED = Blinking with 1Hz, 50% duty cycle.. Top-off and done, STAT = Low. Top-off and done, LOGIC STATE = Low. Top-off and done, CHARGE STATUS LED = Solid on. Faults, STAT = High impedance. Faults, LOGIC STATE = High. Faults, CHARGE STATUS LED = Off\nSTAT can be used as a logic output for the system processor by adding a 200k\u03a9 pullup resistor to the system IO voltage and a rectifier (a diode and a capacitor).\nSTAT also can be used as an LED indicator driver by adding a current limit resistor and an LED to SYS."
+    },
+    {
+      "chunk_index": 88,
+      "page_number": 38.0,
+      "page_numbers": [
+        "38"
+      ],
+      "section_heading": "Typical Application Circuit",
+      "text": "Typical Application Circuit\nFigure 15 illustrates a typical charger application using the MAX77751. Although there are connections between the MCU and the MAX77751, USB detection and battery charging occur automatically without MCU intervention. In the application, the MCU performs two functions: controls the D+/D- switch (MAX4906) and enables or disables battery charging. For the latter function, the MCU can be replaced by the circuit shown in Figure 13 . ENBST can also be implemented in different ways and is typically expected to be a switch or button of the target device.\nFigure 15. Typical Charger Application"
+    },
+    {
+      "chunk_index": 89,
+      "page_number": 39.0,
+      "page_numbers": [
+        "39"
+      ],
+      "section_heading": "Ordering Information",
+      "text": "Ordering Information\n\nMAX77751AEFG+, TEMP RANGE = -40\u00b0C to +85\u00b0C. MAX77751AEFG+, PIN-PACKAGE = 24 FC2QFN (3mm x 3mm). MAX77751AEFG+, BATTERY TERMINATION VOLTAGE (V) = 4.10. MAX77751AEFG+T, TEMP RANGE = -40\u00b0C to +85\u00b0C. MAX77751AEFG+T, PIN-PACKAGE = 24 FC2QFN (3mm x 3mm). MAX77751AEFG+T, BATTERY TERMINATION VOLTAGE (V) = 4.10. MAX77751BEFG+, TEMP RANGE = -40\u00b0C to +85\u00b0C. MAX77751BEFG+, PIN-PACKAGE = 24 FC2QFN (3mm x 3mm). MAX77751BEFG+, BATTERY TERMINATION VOLTAGE (V) = 4.15. MAX77751BEFG+T, TEMP RANGE = -40\u00b0C to +85\u00b0C. MAX77751BEFG+T, PIN-PACKAGE = 24 FC2QFN (3mm x 3mm). MAX77751BEFG+T, BATTERY TERMINATION VOLTAGE (V) = 4.15. MAX77751CEFG+, TEMP RANGE = -40\u00b0C to +85\u00b0C. MAX77751CEFG+, PIN-PACKAGE = 24 FC2QFN (3mm x 3mm). MAX77751CEFG+, BATTERY TERMINATION VOLTAGE (V) = 4.20. MAX77751CEFG+T, TEMP RANGE = -40\u00b0C to +85\u00b0C. MAX77751CEFG+T, PIN-PACKAGE = 24 FC2QFN (3mm x 3mm). MAX77751CEFG+T, BATTERY TERMINATION VOLTAGE (V) = 4.20. MAX77751DEFG+, TEMP RANGE = -40\u00b0C to +85\u00b0C. MAX77751DEFG+, PIN-PACKAGE = 24 FC2QFN (3mm x 3mm). MAX77751DEFG+, BATTERY TERMINATION VOLTAGE"
+    },
+    {
+      "chunk_index": 90,
+      "page_number": 39.0,
+      "page_numbers": [
+        "39"
+      ],
+      "section_heading": "Ordering Information",
+      "text": "Ordering Information\n\n (V) = 4.30. MAX77751DEFG+T, TEMP RANGE = -40\u00b0C to +85\u00b0C. MAX77751DEFG+T, PIN-PACKAGE = 24 FC2QFN (3mm x 3mm). MAX77751DEFG+T, BATTERY TERMINATION VOLTAGE (V) = 4.30. MAX77751FEFG+, TEMP RANGE = -40\u00b0C to +85\u00b0C. MAX77751FEFG+, PIN-PACKAGE = 24 FC2QFN (3mm x 3mm). MAX77751FEFG+, BATTERY TERMINATION VOLTAGE (V) = 4.35. MAX77751FEFG+T, TEMP RANGE = -40\u00b0C to +85\u00b0C. MAX77751FEFG+T, PIN-PACKAGE = 24 FC2QFN (3mm x 3mm). MAX77751FEFG+T, BATTERY TERMINATION VOLTAGE (V) = 4.35. MAX77751GEFG+, TEMP RANGE = -40\u00b0C to +85\u00b0C. MAX77751GEFG+, PIN-PACKAGE = 24 FC2QFN (3mm x 3mm). MAX77751GEFG+, BATTERY TERMINATION VOLTAGE (V) = 4.40. MAX77751GEFG+T, TEMP RANGE = -40\u00b0C to +85\u00b0C. MAX77751GEFG+T, PIN-PACKAGE = 24 FC2QFN (3mm x 3mm). MAX77751GEFG+T, BATTERY TERMINATION VOLTAGE (V) = 4.40. MAX77751HEFG+, TEMP RANGE = -40\u00b0C to +85\u00b0C. MAX77751HEFG+, PIN-PACKAGE = 24 FC2QFN (3mm x 3mm). MAX77751HEFG+, BATTERY TERMINATION VOLTAGE (V) = 4.45. MAX77751HEFG+T, TEMP RANGE = -40\u00b0C to +85\u00b0C. MAX77751HEFG+T, PIN-PACKAGE = 24 FC2QFN (3mm x 3mm)."
+    },
+    {
+      "chunk_index": 91,
+      "page_number": 39.0,
+      "page_numbers": [
+        "39"
+      ],
+      "section_heading": "Ordering Information",
+      "text": "Ordering Information\n MAX77751HEFG+T, BATTERY TERMINATION VOLTAGE (V) = 4.45. MAX77751JEFG+, TEMP RANGE = -40\u00b0C to +85\u00b0C. MAX77751JEFG+, PIN-PACKAGE = 24 FC2QFN (3mm x 3mm). MAX77751JEFG+, BATTERY TERMINATION VOLTAGE (V) = 4.50. MAX77751JEFG+T, TEMP RANGE = -40\u00b0C to +85\u00b0C. MAX77751JEFG+T, PIN-PACKAGE = 24 FC2QFN (3mm x 3mm). MAX77751JEFG+T, BATTERY TERMINATION VOLTAGE (V) = 4.50"
+    },
+    {
+      "chunk_index": 92,
+      "page_number": 40.0,
+      "page_numbers": [
+        "40"
+      ],
+      "section_heading": "Revision History",
+      "text": "Revision History\n0, REVISION DATE = 6/20. 0, DESCRIPTION = Initial release. 0, PAGES CHANGED = -. 1, REVISION DATE = 7/20. 1, DESCRIPTION = Updated the Ordering Information table. 1, PAGES CHANGED = 37. 2, REVISION DATE = 9/20. 2, DESCRIPTION = Updated the Ordering Information table. 2, PAGES CHANGED = 37. 3, REVISION DATE = 10/20. 3, DESCRIPTION = Updated Functional Diagram , Input Current Limit section, Figure 6, Thermal Shutdown State section, Reverse Boost Mode section, USB BC1.2 Charger Detection section, Table 1, Table 2, Table 5, and Figure 15; added D+/D- Detection in CC Detection , Non-USB Type-C Connector Cases , Micro-B Connector , and Barrel Connectors sections. 3, PAGES CHANGED = 16, 21, 23, 26, 27, 29-31, 33, 38. 4, REVISION DATE = 11/20. 4, DESCRIPTION = Updated the Ordering Information table. 4, PAGES CHANGED = 39\nFor pricing, delivery, and ordering information, please visit Maxim Integrated's online storefront at https://www.maximintegrated.com/en/storefront/storefront.html.\nMaxim Integrated cannot assume responsibility for use of any circuitry other than circuitry entirely embodied in a Maxim Integrated product. No circuit patent licenses are implied. Maxim Integrated reserves the right to change the circuitry and specifications without notice at any time. The parametric values (min and max limits) shown in the Electrical Characteristics table are guaranteed. Other parametric values quoted in this data sheet are provided for guidance."
+    }
+  ]
+}
