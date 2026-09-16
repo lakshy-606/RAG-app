@@ -1,0 +1,41 @@
+# Manual ingestion/reindexing of a PDF into Pinecone — run from the
+# Actions tab (or via the API) whenever the index needs (re)populating.
+# Runs the full parse -> chunk -> embed -> upsert pipeline on a standard
+# Linux runner, decoupled from the deployed app's request path.
+
+name: Ingest Sample PDF (manual)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache Docling models
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: docling-models-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            docling-models-
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Ingest sample PDF into Pinecone
+        env:
+          PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+          PINECONE_INDEX_NAME: rag-app-index
+          PINECONE_CLOUD: aws
+          PINECONE_REGION: us-east-1
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_EMBEDDING_MODEL: text-embedding-3-small
+          OPENAI_CHAT_MODEL: gpt-4o-mini
+        run: python scripts/ingest_sample.py

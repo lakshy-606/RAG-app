@@ -1,0 +1,134 @@
+# CI/CD pipeline: test, build, and deploy on every push to main.
+#
+# - `test`: lint + pytest. Only tests that mock external services
+#   (OpenAI/Pinecone) run here, so no real secrets are needed for this job.
+# - `build-and-deploy`: runs only on pushes to main, only after `test`
+#   passes. Builds the Docker image, pushes it to Amazon ECR, and deploys
+#   it to an AWS Lambda function behind a public Function URL. The same
+#   container image runs unmodified locally and on Lambda — see the
+#   Dockerfile for the AWS Lambda Web Adapter that makes that possible.
+#
+# AWS auth uses GitHub's OIDC provider to assume an IAM role — no
+# long-lived AWS access keys are stored in GitHub.
+
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Lint
+        run: ruff check .
+
+      # tests/test_chunking.py is excluded here: it runs Docling for real
+      # against the sample PDF, which takes several minutes of genuine
+      # inference time (not just a model download — caching that doesn't
+      # help). Docling's real-world correctness is already exercised for
+      # real by ingest-sample.yml every time it runs; this fast job stays
+      # focused on what changes on every push — the app's own logic and
+      # the CI/CD pipeline itself. Run test_chunking.py directly
+      # (`pytest tests/test_chunking.py`) whenever Docling itself needs
+      # re-validating, e.g. after a docling version bump.
+      - name: Run tests
+        run: pytest -v --ignore=tests/test_chunking.py
+
+  build-and-deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # required to assume the AWS role via OIDC
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC, no static keys)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t "$REGISTRY/$REPOSITORY:$IMAGE_TAG" -t "$REGISTRY/$REPOSITORY:latest" .
+          docker push "$REGISTRY/$REPOSITORY" --all-tags
+
+      - name: Deploy to AWS Lambda
+        env:
+          FUNCTION_NAME: ${{ vars.LAMBDA_FUNCTION_NAME }}
+          IMAGE_URI: ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ github.sha }}
+          EXECUTION_ROLE_ARN: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/rag-app-lambda-execution-role
+          # The app reads these the same way it reads .env locally (see
+          # app/config.py) — set here rather than baked into the image.
+          PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          cat > /tmp/env.json << EOF
+          {"Variables":{"APP_ENV":"prod","PINECONE_API_KEY":"$PINECONE_API_KEY","OPENAI_API_KEY":"$OPENAI_API_KEY"}}
+          EOF
+
+          if aws lambda get-function --function-name "$FUNCTION_NAME" >/dev/null 2>&1; then
+            echo "Function exists — updating code and config."
+            aws lambda update-function-code \
+              --function-name "$FUNCTION_NAME" --image-uri "$IMAGE_URI" --publish
+            aws lambda wait function-updated --function-name "$FUNCTION_NAME"
+            aws lambda update-function-configuration \
+              --function-name "$FUNCTION_NAME" --environment file:///tmp/env.json \
+              --timeout 180 --memory-size 3008
+            aws lambda wait function-updated --function-name "$FUNCTION_NAME"
+          else
+            echo "Function doesn't exist — creating it."
+            aws lambda create-function \
+              --function-name "$FUNCTION_NAME" \
+              --package-type Image \
+              --code ImageUri="$IMAGE_URI" \
+              --role "$EXECUTION_ROLE_ARN" \
+              --timeout 180 \
+              --memory-size 3008 \
+              --environment file:///tmp/env.json
+            aws lambda wait function-active --function-name "$FUNCTION_NAME"
+
+            aws lambda create-function-url-config \
+              --function-name "$FUNCTION_NAME" --auth-type NONE
+            # Since October 2025, a public (AuthType=NONE) function URL needs
+            # BOTH of these statements — InvokeFunctionUrl alone 403s with
+            # AccessDeniedException despite AuthType being NONE.
+            aws lambda add-permission \
+              --function-name "$FUNCTION_NAME" \
+              --statement-id FunctionURLAllowPublicAccess \
+              --action lambda:InvokeFunctionUrl \
+              --principal "*" \
+              --function-url-auth-type NONE
+            aws lambda add-permission \
+              --function-name "$FUNCTION_NAME" \
+              --statement-id FunctionURLInvokeAllowPublicAccess \
+              --action lambda:InvokeFunction \
+              --principal "*" \
+              --invoked-via-function-url
+          fi
+
+          echo "### Deployed" >> "$GITHUB_STEP_SUMMARY"
+          echo "Function URL: $(aws lambda get-function-url-config --function-name "$FUNCTION_NAME" --query FunctionUrl --output text)" >> "$GITHUB_STEP_SUMMARY"
