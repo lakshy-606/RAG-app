@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>RAG App</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <h2>Settings</h2>
+
+      <label for="embedding-model">Embedding model</label>
+      <select id="embedding-model"></select>
+      <p class="hint">Changing this re-embeds the document into a new
+        index (first time only — cached after that). Takes a few seconds.</p>
+      <p id="reindex-status" class="status"></p>
+
+      <label for="chat-model">Answer model</label>
+      <select id="chat-model"></select>
+
+      <label for="top-k">Chunks retrieved (top_k): <span id="top-k-value">5</span></label>
+      <input type="range" id="top-k" min="1" max="20" value="5" />
+
+      <label for="temperature">Temperature: <span id="temperature-value">0.0</span></label>
+      <input type="range" id="temperature" min="0" max="1" step="0.1" value="0" />
+
+      <label class="checkbox-label">
+        <input type="checkbox" id="use-reranking" checked />
+        Rerank results (Pinecone, free)
+      </label>
+      <p class="hint">Retrieves more candidates, then reorders them with a
+        dedicated reranking model before answering — usually more precise
+        than similarity search alone.</p>
+
+      <p class="hint">All of the above apply to your very next question —
+        no reindexing needed, no redeploy (except the embedding model —
+        see above).</p>
+    </aside>
+
+    <main>
+      <h1>PDF Q&amp;A</h1>
+      <p class="subtitle">Ask a question about the ingested document. Answers cite the page and section they came from.</p>
+
+      <section class="query">
+        <input type="text" id="query-input" placeholder="e.g. What is the maximum allowed X?" />
+        <button id="query-btn">Ask</button>
+        <div id="answer"></div>
+        <ul id="sources"></ul>
+      </section>
+    </main>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>
