@@ -1,0 +1,13 @@
+docling==2.*
+fastapi==0.*
+uvicorn[standard]==0.*
+python-dotenv==1.*
+pinecone>=6,<8
+langchain==1.*
+langchain-openai==1.*
+langchain-pinecone==0.2.*
+python-multipart==0.*
+pydantic-settings==2.*
+pytest==8.*
+httpx==0.*
+ruff==0.*
